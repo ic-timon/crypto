@@ -12,11 +12,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "mobi.timon.im"
+        applicationId = "mobi.timon.android"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

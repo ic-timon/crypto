@@ -97,17 +97,18 @@ val ok = Kdf.bcryptVerify("password".toByteArray(), bcryptHash)
 
 ## 密码学格式与安全提示
 
-| 算法 | 格式说明 |
-|------|----------|
-| AES-GCM / ChaCha20-Poly1305 | `nonce ‖ ciphertext`（含 tag） |
-| AES-CBC | `iv(16) ‖ ciphertext`，PKCS7 |
-| Ed25519 | 密钥对 96 字节：前 32 公钥，后 64 私钥 |
+**AES-GCM / ChaCha20-Poly1305**：输出格式 `nonce(12字节) + ciphertext + tag(16字节)`，nonce 和 tag 自动拼接返回，解密时无需单独传入。
 
-> **弱算法提示**：MD5、SHA-1、DES 仅建议在兼容旧协议时使用。
+**AES-CBC**：输出格式 `iv(16字节) + ciphertext`，IV 随机生成并拼在密文前，解密时自动提取。使用 PKCS7 填充。
+
+**Ed25519**：密钥对序列化为一整个 96 字节数组，前 32 字节是公钥，后 64 字节是私钥（种子+公钥），方便一次性存储/传输。
+
+> **弱算法提示**：MD5、SHA-1 存在碰撞攻击风险，DES 密钥仅 56 位可被暴力破解。仅建议在兼容旧协议时使用。
 
 ---
 
 ## 本地构建
+预编译的 `.so` 文件已包含在仓库中（体积很小），可直接使用。如需自行编译：
 
 需要 Go 1.26+ 和 Android NDK。
 
