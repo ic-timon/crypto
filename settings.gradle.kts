@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "timon-android"
 include(":app")
-include(":enc")
+include(":crypto")
