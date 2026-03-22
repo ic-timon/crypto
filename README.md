@@ -60,20 +60,20 @@ gpr.token=你的GitHub Personal Access Token (read:packages权限)
 
 失败时统一抛出 `mobi.timon.crypto.EncException`。
 
-| 门面 | 能力 |
-|------|------|
-| **Hash** | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 |
-| **Hmac** | HMAC-SHA256 / HMAC-SHA512 |
-| **Random** | CSPRNG bytes / int / long |
-| **Codec** | Hex / Base64 |
-| **Aead** | AES-GCM / ChaCha20-Poly1305 |
-| **Cbc** | AES-CBC / DES-CBC（PKCS7） |
-| **Stream** | AES-CTR / ChaCha20 |
-| **Xts** | AES-XTS |
-| **Kdf** | bcrypt / Argon2id / scrypt / PBKDF2 / HKDF |
-| **Rsa** | 密钥生成 / OAEP / PKCS#1 v1.5 签名验签 |
-| **Ecdsa** | P-224 / P-256 / P-384 / P-521 |
-| **Ed25519** | 密钥生成 / 签名 / 验签 |
+| 门面          | 能力                                           |
+|-------------|----------------------------------------------|
+| **Hash**    | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 |
+| **Hmac**    | HMAC-SHA256 / HMAC-SHA512                    |
+| **Random**  | CSPRNG bytes / int / long                    |
+| **Codec**   | Hex / Base64                                 |
+| **Aead**    | AES-GCM / ChaCha20-Poly1305                  |
+| **Cbc**     | AES-CBC / DES-CBC（PKCS7）                     |
+| **Stream**  | AES-CTR / ChaCha20                           |
+| **Xts**     | AES-XTS                                      |
+| **Kdf**     | bcrypt / Argon2id / scrypt / PBKDF2 / HKDF   |
+| **Rsa**     | 密钥生成 / OAEP / PKCS#1 v1.5 签名验签               |
+| **Ecdsa**   | P-224 / P-256 / P-384 / P-521                |
+| **Ed25519** | 密钥生成 / 签名 / 验签                               |
 
 ---
 
