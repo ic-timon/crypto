@@ -27,9 +27,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import mobi.timon.android.R
 import mobi.timon.android.ui.components.AlgorithmSelector
 import mobi.timon.android.ui.components.HexInputField
 import mobi.timon.android.ui.components.InputField
@@ -51,7 +53,7 @@ fun CipherScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Symmetric Cipher",
+                text = stringResource(R.string.cipher_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -59,7 +61,7 @@ fun CipherScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             AlgorithmSelector(
-                label = "Algorithm",
+                label = stringResource(R.string.cipher_algorithm),
                 options = CipherAlgorithm.entries,
                 selectedOption = state.selectedAlgorithm,
                 onOptionSelected = { viewModel.selectAlgorithm(it) },
@@ -76,14 +78,14 @@ fun CipherScreen(
                     onClick = { viewModel.setMode(CipherMode.ENCRYPT) },
                     shape = SegmentedButtonDefaults.itemShape(0, CipherMode.entries.size)
                 ) {
-                    Text("Encrypt")
+                    Text(stringResource(R.string.cipher_encrypt))
                 }
                 SegmentedButton(
                     selected = state.mode == CipherMode.DECRYPT,
                     onClick = { viewModel.setMode(CipherMode.DECRYPT) },
                     shape = SegmentedButtonDefaults.itemShape(1, CipherMode.entries.size)
                 ) {
-                    Text("Decrypt")
+                    Text(stringResource(R.string.cipher_decrypt))
                 }
             }
 
@@ -93,7 +95,7 @@ fun CipherScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Hex Input")
+                Text(stringResource(R.string.cipher_hex_input))
                 Spacer(modifier = Modifier.width(8.dp))
                 Switch(
                     checked = state.useHexInput,
@@ -105,13 +107,13 @@ fun CipherScreen(
 
             if (state.useHexInput) {
                 HexInputField(
-                    label = "Input (Hex)",
+                    label = stringResource(R.string.cipher_input_hex),
                     value = state.inputHex,
                     onValueChange = { viewModel.updateInputHex(it) }
                 )
             } else {
                 InputField(
-                    label = "Input Text",
+                    label = stringResource(R.string.cipher_input_text),
                     value = state.input,
                     onValueChange = { viewModel.updateInput(it) },
                     minLines = 2,
@@ -126,7 +128,7 @@ fun CipherScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 HexInputField(
-                    label = "Key (${state.selectedAlgorithm.keySize * 8} bits)",
+                    label = stringResource(R.string.cipher_key, state.selectedAlgorithm.keySize * 8),
                     value = state.keyHex,
                     onValueChange = { viewModel.updateKey(it) },
                     modifier = Modifier.weight(1f)
@@ -135,7 +137,7 @@ fun CipherScreen(
                 OutlinedButton(
                     onClick = { viewModel.generateKey() }
                 ) {
-                    Text("Generate")
+                    Text(stringResource(R.string.cipher_generate))
                 }
             }
 
@@ -143,7 +145,7 @@ fun CipherScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 InputField(
-                    label = "Sector Number",
+                    label = stringResource(R.string.cipher_sector_number),
                     value = state.sectorNum,
                     onValueChange = { viewModel.updateSectorNum(it) },
                     placeholder = "0"
@@ -156,13 +158,21 @@ fun CipherScreen(
                 onClick = { viewModel.execute() },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (state.mode == CipherMode.ENCRYPT) "Encrypt" else "Decrypt")
+                Text(
+                    if (state.mode == CipherMode.ENCRYPT) 
+                        stringResource(R.string.cipher_encrypt) 
+                    else 
+                        stringResource(R.string.cipher_decrypt)
+                )
             }
 
             state.result?.let { result ->
                 Spacer(modifier = Modifier.height(16.dp))
                 ResultDisplay(
-                    label = if (state.mode == CipherMode.ENCRYPT) "Ciphertext" else "Plaintext",
+                    label = if (state.mode == CipherMode.ENCRYPT) 
+                        stringResource(R.string.cipher_ciphertext) 
+                    else 
+                        stringResource(R.string.cipher_plaintext),
                     result = result
                 )
             }
@@ -184,7 +194,7 @@ fun CipherScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Auto Tests",
+                    text = stringResource(R.string.auto_tests),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -193,7 +203,7 @@ fun CipherScreen(
                     onClick = { viewModel.runAllTests() },
                     enabled = !state.isRunning
                 ) {
-                    Text("Run Tests")
+                    Text(stringResource(R.string.run_tests))
                 }
             }
 

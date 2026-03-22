@@ -7,39 +7,40 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.ui.graphics.vector.ImageVector
+import mobi.timon.android.R
 
 sealed class Screen(
     val route: String,
-    val title: String,
+    val titleResId: Int,
     val icon: ImageVector
 ) {
     data object Dashboard : Screen(
         route = "dashboard",
-        title = "Dashboard",
+        titleResId = R.string.nav_dashboard,
         icon = Icons.Default.Home
     )
     
     data object Hash : Screen(
         route = "hash",
-        title = "Hash",
+        titleResId = R.string.nav_hash,
         icon = Icons.Default.Tag
     )
     
     data object Cipher : Screen(
         route = "cipher",
-        title = "Cipher",
+        titleResId = R.string.nav_cipher,
         icon = Icons.Default.EnhancedEncryption
     )
     
     data object Kdf : Screen(
         route = "kdf",
-        title = "KDF/Sign",
+        titleResId = R.string.nav_kdf,
         icon = Icons.Default.Key
     )
     
     data object Utils : Screen(
         route = "utils",
-        title = "Utils",
+        titleResId = R.string.nav_utils,
         icon = Icons.Default.Build
     )
 }

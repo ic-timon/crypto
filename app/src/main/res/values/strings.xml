@@ -1,3 +1,116 @@
 <resources>
     <string name="app_name">Crypto Test</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_hash">Hash</string>
+    <string name="nav_cipher">Cipher</string>
+    <string name="nav_kdf">KDF/Sign</string>
+    <string name="nav_utils">Utils</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Crypto Test Dashboard</string>
+    <string name="dashboard_overall_status">Overall Status</string>
+    <string name="dashboard_tests_passed">%1$d/%2$d tests passed (%3$d%%)</string>
+    <string name="dashboard_no_tests">No tests run yet</string>
+    <string name="dashboard_last_run">Last run: %1$dms</string>
+    <string name="dashboard_run_all">Run All Tests</string>
+    <string name="dashboard_running">Running…</string>
+    <string name="dashboard_modules">Modules</string>
+    <string name="dashboard_failed_tests">Failed Tests</string>
+    <string name="dashboard_all_passed">All tests passed!</string>
+
+    <!-- Hash Screen -->
+    <string name="hash_title">Hash &amp; HMAC</string>
+    <string name="hash_algorithm">Algorithm</string>
+    <string name="hash_input">Input Text</string>
+    <string name="hash_key">Key (optional)</string>
+    <string name="hash_key_default">default</string>
+    <string name="hash_compute">Compute Hash</string>
+    <string name="hash_result">Result (%1$s)</string>
+    <string name="auto_tests">Auto Tests</string>
+    <string name="run_tests">Run Tests</string>
+
+    <!-- Cipher Screen -->
+    <string name="cipher_title">Symmetric Cipher</string>
+    <string name="cipher_algorithm">Algorithm</string>
+    <string name="cipher_encrypt">Encrypt</string>
+    <string name="cipher_decrypt">Decrypt</string>
+    <string name="cipher_hex_input">Hex Input</string>
+    <string name="cipher_input_hex">Input (Hex)</string>
+    <string name="cipher_input_text">Input Text</string>
+    <string name="cipher_key">Key (%1$d bits)</string>
+    <string name="cipher_generate">Generate</string>
+    <string name="cipher_sector_number">Sector Number</string>
+    <string name="cipher_ciphertext">Ciphertext</string>
+    <string name="cipher_plaintext">Plaintext</string>
+
+    <!-- Sign Screen -->
+    <string name="sign_title">Digital Signatures</string>
+    <string name="sign_algorithm">Algorithm</string>
+    <string name="sign_message">Message</string>
+    <string name="sign_generate_keypair">Generate Key Pair</string>
+    <string name="sign_private_key">Private Key</string>
+    <string name="sign_public_key">Public Key</string>
+    <string name="sign_sign">Sign</string>
+    <string name="sign_verify">Verify</string>
+    <string name="sign_signature">Signature</string>
+    <string name="sign_verified">Signature verified!</string>
+    <string name="sign_verification_failed">Verification failed!</string>
+
+    <!-- KDF Screen -->
+    <string name="kdf_title">Key Derivation Functions</string>
+    <string name="kdf_algorithm">Algorithm</string>
+    <string name="kdf_password">Password</string>
+    <string name="kdf_salt">Salt (Hex, optional)</string>
+    <string name="kdf_cost">Cost</string>
+    <string name="kdf_iterations">Iterations</string>
+    <string name="kdf_key_length">Key Length</string>
+    <string name="kdf_derive">Derive Key</string>
+    <string name="kdf_derived_key">Derived Key</string>
+    <string name="kdf_sign_tests">KDF &amp; Sign Tests</string>
+
+    <!-- Utils Screen -->
+    <string name="utils_title">Utilities</string>
+    <string name="utils_random">Random</string>
+    <string name="utils_hex_enc">Hex Enc</string>
+    <string name="utils_hex_dec">Hex Dec</string>
+    <string name="utils_b64_enc">B64 Enc</string>
+    <string name="utils_b64_dec">B64 Dec</string>
+    <string name="utils_length_bytes">Length (bytes)</string>
+    <string name="utils_text_to_encode">Text to encode</string>
+    <string name="utils_hex_to_decode">Hex to decode</string>
+    <string name="utils_base64_to_decode">Base64 to decode</string>
+    <string name="utils_input">Input</string>
+    <string name="utils_generate">Generate</string>
+    <string name="utils_encode_hex">Encode to Hex</string>
+    <string name="utils_decode_hex">Decode from Hex</string>
+    <string name="utils_encode_base64">Encode to Base64</string>
+    <string name="utils_decode_base64">Decode from Base64</string>
+
+    <!-- Common -->
+    <string name="result">Result</string>
+    <string name="copy">Copy</string>
+    <string name="no_result">No result</string>
+    <string name="tests_count">%1$d/%2$d tests</string>
+
+    <!-- Test Status -->
+    <string name="status_pass">PASS</string>
+    <string name="status_fail">FAIL</string>
+    <string name="status_wait">WAIT</string>
+    <string name="status_running">…</string>
+
+    <!-- Hex Input -->
+    <string name="hex_placeholder">Hex string (e.g. 0a1b2c)</string>
+    <string name="hex_error_length">Hex string must have even length</string>
+
+    <!-- Module Descriptions -->
+    <string name="module_hash_name">Hash/HMAC</string>
+    <string name="module_hash_desc">SHA-1, SHA-256, SHA-512, BLAKE2b, MD5, HMAC</string>
+    <string name="module_cipher_name">Cipher</string>
+    <string name="module_cipher_desc">AES-GCM, ChaCha20-Poly1305, AES-CBC, DES, AES-CTR, XTS</string>
+    <string name="module_kdf_name">KDF/Sign</string>
+    <string name="module_kdf_desc">Bcrypt, Argon2id, Scrypt, PBKDF2, HKDF, Ed25519, ECDSA, RSA</string>
+    <string name="module_utils_name">Utils</string>
+    <string name="module_utils_desc">Random, Hex Codec, Base64 Codec</string>
 </resources>

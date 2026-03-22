@@ -24,9 +24,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import mobi.timon.android.R
 import mobi.timon.android.ui.components.InputField
 import mobi.timon.android.ui.components.ResultDisplay
 import mobi.timon.android.ui.components.TestStatus
@@ -44,7 +46,7 @@ fun UtilsScreen(
             .padding(16.dp)
     ) {
             Text(
-                text = "Utilities",
+                text = stringResource(R.string.utils_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -60,13 +62,13 @@ fun UtilsScreen(
                         onClick = { viewModel.selectMode(mode) },
                         shape = SegmentedButtonDefaults.itemShape(index, UtilsMode.entries.size)
                     ) {
-                        Text(when (mode) {
-                            UtilsMode.RANDOM_BYTES -> "Random"
-                            UtilsMode.HEX_ENCODE -> "Hex Enc"
-                            UtilsMode.HEX_DECODE -> "Hex Dec"
-                            UtilsMode.BASE64_ENCODE -> "B64 Enc"
-                            UtilsMode.BASE64_DECODE -> "B64 Dec"
-                        })
+                    Text(when (mode) {
+                        UtilsMode.RANDOM_BYTES -> stringResource(R.string.utils_random)
+                        UtilsMode.HEX_ENCODE -> stringResource(R.string.utils_hex_enc)
+                        UtilsMode.HEX_DECODE -> stringResource(R.string.utils_hex_dec)
+                        UtilsMode.BASE64_ENCODE -> stringResource(R.string.utils_b64_enc)
+                        UtilsMode.BASE64_DECODE -> stringResource(R.string.utils_b64_dec)
+                    })
                     }
                 }
             }
@@ -76,7 +78,7 @@ fun UtilsScreen(
             when (state.selectedMode) {
                 UtilsMode.RANDOM_BYTES -> {
                     InputField(
-                        label = "Length (bytes)",
+                        label = stringResource(R.string.utils_length_bytes),
                         value = state.randomLength,
                         onValueChange = { viewModel.updateRandomLength(it) }
                     )
@@ -84,11 +86,11 @@ fun UtilsScreen(
                 else -> {
                     InputField(
                         label = when (state.selectedMode) {
-                            UtilsMode.HEX_ENCODE -> "Text to encode"
-                            UtilsMode.HEX_DECODE -> "Hex to decode"
-                            UtilsMode.BASE64_ENCODE -> "Text to encode"
-                            UtilsMode.BASE64_DECODE -> "Base64 to decode"
-                            else -> "Input"
+                            UtilsMode.HEX_ENCODE -> stringResource(R.string.utils_text_to_encode)
+                            UtilsMode.HEX_DECODE -> stringResource(R.string.utils_hex_to_decode)
+                            UtilsMode.BASE64_ENCODE -> stringResource(R.string.utils_text_to_encode)
+                            UtilsMode.BASE64_DECODE -> stringResource(R.string.utils_base64_to_decode)
+                            else -> stringResource(R.string.utils_input)
                         },
                         value = state.input,
                         onValueChange = { viewModel.updateInput(it) },
@@ -105,18 +107,18 @@ fun UtilsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(when (state.selectedMode) {
-                    UtilsMode.RANDOM_BYTES -> "Generate"
-                    UtilsMode.HEX_ENCODE -> "Encode to Hex"
-                    UtilsMode.HEX_DECODE -> "Decode from Hex"
-                    UtilsMode.BASE64_ENCODE -> "Encode to Base64"
-                    UtilsMode.BASE64_DECODE -> "Decode from Base64"
+                    UtilsMode.RANDOM_BYTES -> stringResource(R.string.utils_generate)
+                    UtilsMode.HEX_ENCODE -> stringResource(R.string.utils_encode_hex)
+                    UtilsMode.HEX_DECODE -> stringResource(R.string.utils_decode_hex)
+                    UtilsMode.BASE64_ENCODE -> stringResource(R.string.utils_encode_base64)
+                    UtilsMode.BASE64_DECODE -> stringResource(R.string.utils_decode_base64)
                 })
             }
             
             state.output?.let { output ->
                 Spacer(modifier = Modifier.height(16.dp))
                 ResultDisplay(
-                    label = "Result",
+                    label = stringResource(R.string.result),
                     result = output
                 )
             }
@@ -138,7 +140,7 @@ fun UtilsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Auto Tests",
+                    text = stringResource(R.string.auto_tests),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -147,7 +149,7 @@ fun UtilsScreen(
                     onClick = { viewModel.runAllTests() },
                     enabled = !state.isRunning
                 ) {
-                    Text("Run Tests")
+                    Text(stringResource(R.string.run_tests))
                 }
             }
             

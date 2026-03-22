@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -19,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import mobi.timon.android.R
 
 @Composable
 fun ResultDisplay(
@@ -62,7 +63,7 @@ fun ResultDisplay(
                         },
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
-                        Text("Copy", maxLines = 1)
+                        Text(stringResource(R.string.copy), maxLines = 1)
                     }
                 }
             }
@@ -79,7 +80,7 @@ fun ResultDisplay(
                 )
             } else {
                 Text(
-                    text = "No result",
+                    text = stringResource(R.string.no_result),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 8.dp)

@@ -1,0 +1,116 @@
+<resources>
+    <string name="app_name">加密测试</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">仪表盘</string>
+    <string name="nav_hash">哈希</string>
+    <string name="nav_cipher">加密</string>
+    <string name="nav_kdf">KDF/签名</string>
+    <string name="nav_utils">工具</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">加密测试仪表盘</string>
+    <string name="dashboard_overall_status">总体状态</string>
+    <string name="dashboard_tests_passed">通过 %1$d/%2$d 项测试 (%3$d%%)</string>
+    <string name="dashboard_no_tests">尚未运行测试</string>
+    <string name="dashboard_last_run">上次运行: %1$dms</string>
+    <string name="dashboard_run_all">运行所有测试</string>
+    <string name="dashboard_running">运行中…</string>
+    <string name="dashboard_modules">模块</string>
+    <string name="dashboard_failed_tests">失败的测试</string>
+    <string name="dashboard_all_passed">所有测试通过！</string>
+
+    <!-- Hash Screen -->
+    <string name="hash_title">哈希 &amp; HMAC</string>
+    <string name="hash_algorithm">算法</string>
+    <string name="hash_input">输入文本</string>
+    <string name="hash_key">密钥 (可选)</string>
+    <string name="hash_key_default">默认</string>
+    <string name="hash_compute">计算哈希</string>
+    <string name="hash_result">结果 (%1$s)</string>
+    <string name="auto_tests">自动测试</string>
+    <string name="run_tests">运行测试</string>
+
+    <!-- Cipher Screen -->
+    <string name="cipher_title">对称加密</string>
+    <string name="cipher_algorithm">算法</string>
+    <string name="cipher_encrypt">加密</string>
+    <string name="cipher_decrypt">解密</string>
+    <string name="cipher_hex_input">十六进制输入</string>
+    <string name="cipher_input_hex">输入 (Hex)</string>
+    <string name="cipher_input_text">输入文本</string>
+    <string name="cipher_key">密钥 (%1$d 位)</string>
+    <string name="cipher_generate">生成</string>
+    <string name="cipher_sector_number">扇区号</string>
+    <string name="cipher_ciphertext">密文</string>
+    <string name="cipher_plaintext">明文</string>
+
+    <!-- Sign Screen -->
+    <string name="sign_title">数字签名</string>
+    <string name="sign_algorithm">算法</string>
+    <string name="sign_message">消息</string>
+    <string name="sign_generate_keypair">生成密钥对</string>
+    <string name="sign_private_key">私钥</string>
+    <string name="sign_public_key">公钥</string>
+    <string name="sign_sign">签名</string>
+    <string name="sign_verify">验证</string>
+    <string name="sign_signature">签名</string>
+    <string name="sign_verified">签名验证成功！</string>
+    <string name="sign_verification_failed">签名验证失败！</string>
+
+    <!-- KDF Screen -->
+    <string name="kdf_title">密钥派生函数</string>
+    <string name="kdf_algorithm">算法</string>
+    <string name="kdf_password">密码</string>
+    <string name="kdf_salt">盐值 (Hex, 可选)</string>
+    <string name="kdf_cost">代价</string>
+    <string name="kdf_iterations">迭代次数</string>
+    <string name="kdf_key_length">密钥长度</string>
+    <string name="kdf_derive">派生密钥</string>
+    <string name="kdf_derived_key">派生密钥</string>
+    <string name="kdf_sign_tests">KDF 与签名测试</string>
+
+    <!-- Utils Screen -->
+    <string name="utils_title">工具</string>
+    <string name="utils_random">随机</string>
+    <string name="utils_hex_enc">Hex 编码</string>
+    <string name="utils_hex_dec">Hex 解码</string>
+    <string name="utils_b64_enc">B64 编码</string>
+    <string name="utils_b64_dec">B64 解码</string>
+    <string name="utils_length_bytes">长度 (字节)</string>
+    <string name="utils_text_to_encode">要编码的文本</string>
+    <string name="utils_hex_to_decode">要解码的 Hex</string>
+    <string name="utils_base64_to_decode">要解码的 Base64</string>
+    <string name="utils_input">输入</string>
+    <string name="utils_generate">生成</string>
+    <string name="utils_encode_hex">编码为 Hex</string>
+    <string name="utils_decode_hex">从 Hex 解码</string>
+    <string name="utils_encode_base64">编码为 Base64</string>
+    <string name="utils_decode_base64">从 Base64 解码</string>
+
+    <!-- Common -->
+    <string name="result">结果</string>
+    <string name="copy">复制</string>
+    <string name="no_result">无结果</string>
+    <string name="tests_count">%1$d/%2$d 项测试</string>
+
+    <!-- Test Status -->
+    <string name="status_pass">通过</string>
+    <string name="status_fail">失败</string>
+    <string name="status_wait">等待</string>
+    <string name="status_running">…</string>
+
+    <!-- Hex Input -->
+    <string name="hex_placeholder">十六进制字符串 (如 0a1b2c)</string>
+    <string name="hex_error_length">十六进制字符串长度必须为偶数</string>
+
+    <!-- Module Descriptions -->
+    <string name="module_hash_name">哈希/HMAC</string>
+    <string name="module_hash_desc">SHA-1, SHA-256, SHA-512, BLAKE2b, MD5, HMAC</string>
+    <string name="module_cipher_name">加密</string>
+    <string name="module_cipher_desc">AES-GCM, ChaCha20-Poly1305, AES-CBC, DES, AES-CTR, XTS</string>
+    <string name="module_kdf_name">KDF/签名</string>
+    <string name="module_kdf_desc">Bcrypt, Argon2id, Scrypt, PBKDF2, HKDF, Ed25519, ECDSA, RSA</string>
+    <string name="module_utils_name">工具</string>
+    <string name="module_utils_desc">随机数, Hex 编解码, Base64 编解码</string>
+</resources>

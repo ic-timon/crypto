@@ -13,8 +13,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import mobi.timon.android.R
 
 @Composable
 fun InputField(
@@ -49,7 +51,7 @@ fun HexInputField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Hex string (e.g. 0a1b2c)"
+    placeholder: String? = null
 ) {
     var error by remember { mutableStateOf(false) }
     
@@ -62,7 +64,7 @@ fun HexInputField(
                 error = filtered.isNotEmpty() && filtered.length % 2 != 0
             },
             label = { Text(label) },
-            placeholder = { Text(placeholder, maxLines = 1) },
+            placeholder = { Text(placeholder ?: stringResource(R.string.hex_placeholder), maxLines = 1) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
             singleLine = true,
             isError = error,
@@ -70,7 +72,7 @@ fun HexInputField(
         )
         if (error) {
             Text(
-                text = "Hex string must have even length",
+                text = stringResource(R.string.hex_error_length),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import mobi.timon.android.R
 import mobi.timon.android.ui.components.ApiTestInfo
 import mobi.timon.android.ui.components.TestStatus
 import mobi.timon.android.util.CryptoTester
@@ -35,8 +36,8 @@ data class DashboardState(
     
     val hashApiInfo: ApiTestInfo
         get() = ApiTestInfo(
-            name = "Hash/HMAC",
-            description = "SHA-1, SHA-256, SHA-512, BLAKE2b, MD5, HMAC",
+            nameResId = R.string.module_hash_name,
+            descriptionResId = R.string.module_hash_desc,
             testCount = hashTests.size,
             passedCount = hashTests.count { it.status == TestStatus.SUCCESS },
             status = when {
@@ -48,8 +49,8 @@ data class DashboardState(
     
     val cipherApiInfo: ApiTestInfo
         get() = ApiTestInfo(
-            name = "Cipher",
-            description = "AES-GCM, ChaCha20-Poly1305, AES-CBC, DES, AES-CTR, XTS",
+            nameResId = R.string.module_cipher_name,
+            descriptionResId = R.string.module_cipher_desc,
             testCount = cipherTests.size,
             passedCount = cipherTests.count { it.status == TestStatus.SUCCESS },
             status = when {
@@ -61,8 +62,8 @@ data class DashboardState(
     
     val kdfApiInfo: ApiTestInfo
         get() = ApiTestInfo(
-            name = "KDF/Sign",
-            description = "Bcrypt, Argon2id, Scrypt, PBKDF2, HKDF, Ed25519, ECDSA, RSA",
+            nameResId = R.string.module_kdf_name,
+            descriptionResId = R.string.module_kdf_desc,
             testCount = kdfTests.size + signTests.size,
             passedCount = kdfTests.count { it.status == TestStatus.SUCCESS } +
                           signTests.count { it.status == TestStatus.SUCCESS },
@@ -76,8 +77,8 @@ data class DashboardState(
     
     val utilsApiInfo: ApiTestInfo
         get() = ApiTestInfo(
-            name = "Utils",
-            description = "Random, Hex Codec, Base64 Codec",
+            nameResId = R.string.module_utils_name,
+            descriptionResId = R.string.module_utils_desc,
             testCount = utilsTests.size,
             passedCount = utilsTests.count { it.status == TestStatus.SUCCESS },
             status = when {

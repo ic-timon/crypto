@@ -21,9 +21,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import mobi.timon.android.R
 import mobi.timon.android.ui.components.AlgorithmSelector
 import mobi.timon.android.ui.components.InputField
 import mobi.timon.android.ui.components.ResultDisplay
@@ -43,7 +45,7 @@ fun SignScreen(
             .verticalScroll(rememberScrollState())
     ) {
             Text(
-                text = "Digital Signatures",
+                text = stringResource(R.string.sign_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -51,7 +53,7 @@ fun SignScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             AlgorithmSelector(
-                label = "Algorithm",
+                label = stringResource(R.string.sign_algorithm),
                 options = SignAlgorithm.entries,
                 selectedOption = state.selectedAlgorithm,
                 onOptionSelected = { viewModel.selectAlgorithm(it) },
@@ -61,7 +63,7 @@ fun SignScreen(
             Spacer(modifier = Modifier.height(12.dp))
             
             InputField(
-                label = "Message",
+                label = stringResource(R.string.sign_message),
                 value = state.message,
                 onValueChange = { viewModel.updateMessage(it) },
                 minLines = 2,
@@ -74,14 +76,14 @@ fun SignScreen(
                 onClick = { viewModel.generateKeyPair() },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Generate Key Pair")
+                Text(stringResource(R.string.sign_generate_keypair))
             }
             
             if (state.publicKeyHex.isNotEmpty() || state.privateKeyHex.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 InputField(
-                    label = "Private Key",
+                    label = stringResource(R.string.sign_private_key),
                     value = state.privateKeyHex,
                     onValueChange = { viewModel.updatePrivateKey(it) },
                     minLines = 2,
@@ -91,7 +93,7 @@ fun SignScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 InputField(
-                    label = "Public Key",
+                    label = stringResource(R.string.sign_public_key),
                     value = state.publicKeyHex,
                     onValueChange = { viewModel.updatePublicKey(it) },
                     minLines = 2,
@@ -108,14 +110,14 @@ fun SignScreen(
                         onClick = { viewModel.sign() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Sign")
+                        Text(stringResource(R.string.sign_sign))
                     }
                     
                     OutlinedButton(
                         onClick = { viewModel.verify() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Verify")
+                        Text(stringResource(R.string.sign_verify))
                     }
                 }
                 
@@ -130,14 +132,14 @@ fun SignScreen(
                             onClick = { viewModel.encrypt() },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Encrypt")
+                            Text(stringResource(R.string.cipher_encrypt))
                         }
                         
                         OutlinedButton(
                             onClick = { viewModel.decrypt() },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Decrypt")
+                            Text(stringResource(R.string.cipher_decrypt))
                         }
                     }
                 }
@@ -147,7 +149,7 @@ fun SignScreen(
                 if (sig.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     ResultDisplay(
-                        label = "Signature",
+                        label = stringResource(R.string.sign_signature),
                         result = sig
                     )
                 }
@@ -157,7 +159,7 @@ fun SignScreen(
                 if (ct.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     ResultDisplay(
-                        label = "Ciphertext",
+                        label = stringResource(R.string.cipher_ciphertext),
                         result = ct
                     )
                 }
@@ -183,7 +185,10 @@ fun SignScreen(
                     )
                 ) {
                     Text(
-                        text = if (verified) "Signature verified!" else "Verification failed!",
+                        text = if (verified) 
+                            stringResource(R.string.sign_verified) 
+                        else 
+                            stringResource(R.string.sign_verification_failed),
                         modifier = Modifier.padding(12.dp),
                         color = if (verified)
                             MaterialTheme.colorScheme.onPrimaryContainer
@@ -210,7 +215,7 @@ fun SignScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Auto Tests",
+                    text = stringResource(R.string.auto_tests),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -219,7 +224,7 @@ fun SignScreen(
                     onClick = { viewModel.runAllTests() },
                     enabled = !state.isRunning
                 ) {
-                    Text("Run Tests")
+                    Text(stringResource(R.string.run_tests))
                 }
             }
             

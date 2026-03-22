@@ -23,8 +23,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import mobi.timon.android.R
 import androidx.lifecycle.viewmodel.compose.viewModel
 import mobi.timon.android.ui.components.ApiCard
 import mobi.timon.android.ui.components.TestStatus
@@ -46,7 +48,7 @@ fun DashboardScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Crypto Test Dashboard",
+            text = stringResource(R.string.dashboard_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -69,7 +71,7 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Overall Status",
+                        text = stringResource(R.string.dashboard_overall_status),
                         style = MaterialTheme.typography.titleMedium
                     )
                     if (state.isRunning) {
@@ -91,20 +93,25 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        text = "${state.passedTests}/${state.totalTests} tests passed (${(state.successRate * 100).toInt()}%)",
+                        text = stringResource(
+                            R.string.dashboard_tests_passed,
+                            state.passedTests,
+                            state.totalTests,
+                            (state.successRate * 100).toInt()
+                        ),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     
                     if (state.lastRunTime > 0) {
                         Text(
-                            text = "Last run: ${state.lastRunTime}ms",
+                            text = stringResource(R.string.dashboard_last_run, state.lastRunTime),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
                     Text(
-                        text = "No tests run yet",
+                        text = stringResource(R.string.dashboard_no_tests),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -119,13 +126,18 @@ fun DashboardScreen(
             enabled = !state.isRunning,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (state.isRunning) "Running..." else "Run All Tests")
+            Text(
+                if (state.isRunning) 
+                    stringResource(R.string.dashboard_running) 
+                else 
+                    stringResource(R.string.dashboard_run_all)
+            )
         }
         
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = "Modules",
+            text = stringResource(R.string.dashboard_modules),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -169,7 +181,7 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Failed Tests",
+                text = stringResource(R.string.dashboard_failed_tests),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -181,7 +193,7 @@ fun DashboardScreen(
             
             if (failedTests.isEmpty()) {
                 Text(
-                    text = "All tests passed!",
+                    text = stringResource(R.string.dashboard_all_passed),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )

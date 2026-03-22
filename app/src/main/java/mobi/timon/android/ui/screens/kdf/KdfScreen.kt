@@ -21,9 +21,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import mobi.timon.android.R
 import mobi.timon.android.ui.components.AlgorithmSelector
 import mobi.timon.android.ui.components.HexInputField
 import mobi.timon.android.ui.components.InputField
@@ -45,7 +47,7 @@ fun KdfScreen(
             .padding(16.dp)
     ) {
             Text(
-                text = "Key Derivation Functions",
+                text = stringResource(R.string.kdf_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -53,7 +55,7 @@ fun KdfScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             AlgorithmSelector(
-                label = "Algorithm",
+                label = stringResource(R.string.kdf_algorithm),
                 options = KdfAlgorithm.entries,
                 selectedOption = kdfState.selectedAlgorithm,
                 onOptionSelected = { viewModel.selectAlgorithm(it) },
@@ -63,7 +65,7 @@ fun KdfScreen(
             Spacer(modifier = Modifier.height(12.dp))
             
             InputField(
-                label = "Password",
+                label = stringResource(R.string.kdf_password),
                 value = kdfState.password,
                 onValueChange = { viewModel.updatePassword(it) }
             )
@@ -75,7 +77,7 @@ fun KdfScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 HexInputField(
-                    label = "Salt (Hex, optional)",
+                    label = stringResource(R.string.kdf_salt),
                     value = kdfState.saltHex,
                     onValueChange = { viewModel.updateSalt(it) },
                     modifier = Modifier.weight(1f)
@@ -84,7 +86,7 @@ fun KdfScreen(
                 OutlinedButton(
                     onClick = { viewModel.generateSalt() }
                 ) {
-                    Text("Generate")
+                    Text(stringResource(R.string.cipher_generate))
                 }
             }
             
@@ -95,14 +97,17 @@ fun KdfScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 InputField(
-                    label = if (kdfState.selectedAlgorithm == KdfAlgorithm.BCRYPT) "Cost" else "Iterations",
+                    label = if (kdfState.selectedAlgorithm == KdfAlgorithm.BCRYPT) 
+                        stringResource(R.string.kdf_cost) 
+                    else 
+                        stringResource(R.string.kdf_iterations),
                     value = kdfState.iterations,
                     onValueChange = { viewModel.updateIterations(it) },
                     modifier = Modifier.weight(1f)
                 )
                 
                 InputField(
-                    label = "Key Length",
+                    label = stringResource(R.string.kdf_key_length),
                     value = kdfState.keyLength,
                     onValueChange = { viewModel.updateKeyLength(it) },
                     modifier = Modifier.weight(1f)
@@ -115,13 +120,13 @@ fun KdfScreen(
                 onClick = { viewModel.derive() },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Derive Key")
+                Text(stringResource(R.string.kdf_derive))
             }
             
             kdfState.result?.let { result ->
                 Spacer(modifier = Modifier.height(16.dp))
                 ResultDisplay(
-                    label = "Derived Key",
+                    label = stringResource(R.string.kdf_derived_key),
                     result = result
                 )
             }
@@ -138,7 +143,7 @@ fun KdfScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Digital Signatures",
+                text = stringResource(R.string.sign_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -151,7 +156,7 @@ fun KdfScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "KDF & Sign Tests",
+                    text = stringResource(R.string.kdf_sign_tests),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -160,13 +165,13 @@ fun KdfScreen(
                     OutlinedButton(
                         onClick = { viewModel.runAllTests() }
                     ) {
-                        Text("KDF")
+                        Text(stringResource(R.string.nav_kdf))
                     }
                     
                     OutlinedButton(
                         onClick = { signViewModel.runAllTests() }
                     ) {
-                        Text("Sign")
+                        Text(stringResource(R.string.sign_sign))
                     }
                 }
             }
