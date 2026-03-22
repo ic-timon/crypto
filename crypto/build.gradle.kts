@@ -2,6 +2,7 @@ import java.io.File
 
 plugins {
     alias(libs.plugins.android.library)
+    `maven-publish`
 }
 
 val ndkVersion: String? = providers.gradleProperty("android.ndkVersion").orNull
@@ -81,10 +82,16 @@ android {
 
     sourceSets {
         getByName("main") {
-            jniLibs.srcDir(goLibDir)
+            jniLibs.directories.add(goLibDir.absolutePath)
         }
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 fun getNdkPath(): File {
@@ -236,4 +243,63 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation("androidx.multidex:multidex:2.0.1")
+}
+
+fun getVersionFromGitTag(): String {
+    val process = ProcessBuilder("git", "describe", "--tags", "--abbrev=0").start()
+    val exitCode = process.waitFor()
+    return if (exitCode == 0) {
+        process.inputStream.bufferedReader().readText().trim().removePrefix("v")
+    } else {
+        "SNAPSHOT"
+    }
+}
+
+val libraryVersion = getVersionFromGitTag()
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "io.github.ic-timon.crypto"
+            artifactId = "crypto"
+            version = libraryVersion
+
+            from(components.findByName("release"))
+
+            pom {
+                name.set("crypto")
+                description.set("Android cryptographic library with Go backend")
+                url.set("https://github.com/ic-timon/crypto")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("ic-timon")
+                        name.set("Timon")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/ic-timon/crypto.git")
+                    developerConnection.set("scm:git:ssh://github.com/ic-timon/crypto.git")
+                    url.set("https://github.com/ic-timon/crypto")
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ic-timon/crypto")
+            credentials {
+                username = project.findProperty("gpr.user") as String? 
+                    ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.token") as String? 
+                    ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }

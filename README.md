@@ -38,6 +38,43 @@
 
 ---
 
+## 作为依赖使用
+
+`crypto` 库已发布到 GitHub Packages，可直接引入：
+
+### 1. 配置仓库
+
+在 `settings.gradle.kts` 或根 `build.gradle.kts` 中添加：
+
+```kotlin
+repositories {
+    maven { url = uri("https://maven.pkg.github.com/ic-timon/crypto") }
+}
+```
+
+### 2. 添加依赖
+
+```kotlin
+implementation("io.github.ic-timon.crypto:crypto:1.0.0")
+```
+
+> 注意：GitHub Packages 需要认证。在 `local.properties` 中配置：
+> ```properties
+> gpr.user=你的GitHub用户名
+> gpr.token=你的GitHub Personal Access Token (read:packages权限)
+> ```
+
+### 3. 发布新版本
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+CI 将自动构建并发布到 GitHub Packages，同时创建 GitHub Release。
+
+---
+
 ## `:crypto` 架构与能力
 
 ### 调用链
