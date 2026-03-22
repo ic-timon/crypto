@@ -137,14 +137,7 @@ crypto/
 
 ---
 
-## 发布流程
-
-```bash
-git tag v1.0.5
-git push origin v1.0.5
-```
-
-CI 自动构建并发布到 GitHub Packages 与 Releases。
+本项目是 CI 自动构建并发布到 GitHub Packages 与 Releases。
 
 ---
 
