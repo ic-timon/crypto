@@ -159,6 +159,7 @@ fun compileGoForAbi(abi: String, ndkPath: File) {
     env["GOARCH"] = goArch
     env["CC"] = clangPath.absolutePath
     env["CXX"] = clangPath.absolutePath.replace("-clang", "-clang++")
+    env["CGO_CFLAGS"] = "-Os"
 
     if (abi == "armeabi-v7a") {
         env["GOARM"] = "7"
