@@ -50,7 +50,7 @@ repositories {
 ### 2. Add the dependency
 
 ```kotlin
-implementation("io.github.ic-timon.crypto:crypto:1.1.0")
+implementation("io.github.ic-timon.crypto:crypto:1.3.0")
 ```
 
 ### 3. Authentication
@@ -102,7 +102,7 @@ Failures throw `mobi.timon.crypto.EncException`.
 | **Hash**      | SHA-1 / SHA-256 / SHA-384 / SHA-512 / SHA-512/256 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
 | **Hmac**      | HMAC-SHA1 / HMAC-SHA256 / HMAC-SHA512 |
 | **Random**    | CSPRNG bytes / int / long |
-| **Codec**     | Hex / Base64 |
+| **Codec**     | Hex / Base64 / constant-time equals / secure wipe |
 | **Aead**      | AES-GCM / ChaCha20-Poly1305 |
 | **Cbc**       | AES-CBC / DES-CBC (PKCS#7) |
 | **Stream**    | AES-CTR / ChaCha20 |
@@ -215,12 +215,11 @@ C buffers returned from Go are freed in JNI via `FreeBytes`; boolean verify path
 
 ---
 
-## What's New
-
 - **Security**: `Codec.constantTimeEquals()` for timing-attack prevention; `Codec.wipe()` for secure memory clearing
 - **New algorithms**: SHA-384, SHA-512/256, HMAC-SHA1
 - **Documentation**: Full KDoc for all public APIs
 - **Quality**: CI workflow, JVM unit tests, ktlint code style
+- **UI**: Dashboard now shows 5 modules (Hash, Cipher, KDF, Sign, Utils) with 37 tests total
 
 ---
 

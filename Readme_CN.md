@@ -50,7 +50,7 @@ repositories {
 ### 2. 添加依赖
 
 ```kotlin
-implementation("io.github.ic-timon.crypto:crypto:1.1.0")
+implementation("io.github.ic-timon.crypto:crypto:1.3.0")
 ```
 
 ### 3. 认证配置
@@ -99,10 +99,10 @@ Go (//export)
 
 | 门面          | 能力                                           |
 |-------------|----------------------------------------------|
-| **Hash**    | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
-| **Hmac**    | HMAC-SHA256 / HMAC-SHA512                    |
+| **Hash**    | SHA-1 / SHA-256 / SHA-384 / SHA-512 / SHA-512/256 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
+| **Hmac**    | HMAC-SHA1 / HMAC-SHA256 / HMAC-SHA512        |
 | **Random**  | CSPRNG bytes / int / long                    |
-| **Codec**   | Hex / Base64                                 |
+| **Codec**   | Hex / Base64 / 常量时间比较 / 安全擦除         |
 | **Aead**    | AES-GCM / ChaCha20-Poly1305                  |
 | **Cbc**     | AES-CBC / DES-CBC（PKCS7）                     |
 | **Stream**  | AES-CTR / ChaCha20                           |
@@ -200,6 +200,14 @@ val blsValid = Bls.verify("message".toByteArray(), blsSig, blsPk)
 ### 安全提示
 
 > **弱算法**：MD5、SHA-1 存在碰撞攻击风险，DES 密钥仅 56 位可被暴力破解。仅建议在兼容旧协议时使用。
+
+---
+
+- **安全**：`Codec.constantTimeEquals()` 用于防止时序攻击；`Codec.wipe()` 用于安全擦除内存
+- **新算法**：SHA-384、SHA-512/256、HMAC-SHA1
+- **文档**：所有公开 API 均有完整 KDoc
+- **质量**：CI 工作流、JVM 单元测试、ktlint 代码风格
+- **UI**：Dashboard 现显示 5 个模块（Hash、Cipher、KDF、Sign、Utils），共 37 项测试
 
 ---
 
