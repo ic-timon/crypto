@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,6 +45,7 @@ fun KdfScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
             Text(
                 text = stringResource(R.string.kdf_title),
@@ -180,10 +181,10 @@ fun KdfScreen(
             
             val allTests = kdfState.testResults + signState.testResults
             
-            LazyColumn(
+            Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(allTests) { test ->
+                allTests.forEach { test ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
