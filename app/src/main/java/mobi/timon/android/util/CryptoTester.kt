@@ -80,6 +80,28 @@ object CryptoTester {
         "HMAC: $hex (64 bytes)"
     }
     
+    fun testSha384(): TestResult = runTest("SHA-384") {
+        val data = "Hello, World!".toByteArray()
+        val hash = Hash.sha384(data)
+        val hex = Codec.toHex(hash)
+        "Hash: $hex (48 bytes)"
+    }
+    
+    fun testSha512_256(): TestResult = runTest("SHA-512/256") {
+        val data = "Hello, World!".toByteArray()
+        val hash = Hash.sha512_256(data)
+        val hex = Codec.toHex(hash)
+        "Hash: $hex (32 bytes)"
+    }
+    
+    fun testHmacSha1(): TestResult = runTest("HMAC-SHA1") {
+        val data = "Hello, World!".toByteArray()
+        val key = "secret".toByteArray()
+        val mac = Hmac.hmacSha1(data, key)
+        val hex = Codec.toHex(mac)
+        "HMAC: $hex (20 bytes)"
+    }
+    
     fun testRipemd160(): TestResult = runTest("RIPEMD-160") {
         val data = "Hello, World!".toByteArray()
         val hash = Hash.ripemd160(data)
@@ -331,15 +353,36 @@ object CryptoTester {
         else throw AssertionError("Base64 codec failed")
     }
     
+    fun testConstantTimeEquals(): TestResult = runTest("Constant-Time Equals") {
+        val a = byteArrayOf(1, 2, 3, 4)
+        val b = byteArrayOf(1, 2, 3, 4)
+        val c = byteArrayOf(1, 2, 3, 5)
+        if (Codec.constantTimeEquals(a, b) && !Codec.constantTimeEquals(a, c)) {
+            "Equal: true, Not-equal: false"
+        } else {
+            throw AssertionError("Constant-time comparison failed")
+        }
+    }
+    
+    fun testSecureWipe(): TestResult = runTest("Secure Wipe") {
+        val data = byteArrayOf(1, 2, 3, 4, 5)
+        Codec.wipe(data)
+        if (data.all { it == 0.toByte() }) "Data wiped to zeros" 
+        else throw AssertionError("Secure wipe failed")
+    }
+    
     fun runAllHashTests(): List<TestResult> = listOf(
         testSha1(),
         testSha256(),
+        testSha384(),
         testSha512(),
+        testSha512_256(),
         testBlake2b256(),
         testMd5(),
         testRipemd160(),
         testKeccak256(),
         testKeccak512(),
+        testHmacSha1(),
         testHmacSha256(),
         testHmacSha512()
     )
@@ -375,7 +418,9 @@ object CryptoTester {
     fun runAllUtilsTests(): List<TestResult> = listOf(
         testRandomBytes(),
         testCodecHex(),
-        testCodecBase64()
+        testCodecBase64(),
+        testConstantTimeEquals(),
+        testSecureWipe()
     )
     
     fun runAllTests(): List<TestResult> = runAllHashTests() + 
