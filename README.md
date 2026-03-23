@@ -99,8 +99,8 @@ Failures throw `mobi.timon.crypto.EncException`.
 
 | Facade        | Capabilities |
 |---------------|--------------|
-| **Hash**      | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
-| **Hmac**      | HMAC-SHA256 / HMAC-SHA512 |
+| **Hash**      | SHA-1 / SHA-256 / SHA-384 / SHA-512 / SHA-512/256 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
+| **Hmac**      | HMAC-SHA1 / HMAC-SHA256 / HMAC-SHA512 |
 | **Random**    | CSPRNG bytes / int / long |
 | **Codec**     | Hex / Base64 |
 | **Aead**      | AES-GCM / ChaCha20-Poly1305 |
@@ -212,6 +212,15 @@ When changing native behavior, keep these in sync:
 3. **`//export`** functions in `src/main/go/*.go` and the generated **`libencgo.h`**
 
 C buffers returned from Go are freed in JNI via `FreeBytes`; boolean verify paths use `verifyBoolResult`. Empty-input semantics for hash/HMAC and similar APIs follow the Go implementation.
+
+---
+
+## What's New
+
+- **Security**: `Codec.constantTimeEquals()` for timing-attack prevention; `Codec.wipe()` for secure memory clearing
+- **New algorithms**: SHA-384, SHA-512/256, HMAC-SHA1
+- **Documentation**: Full KDoc for all public APIs
+- **Quality**: CI workflow, JVM unit tests, ktlint code style
 
 ---
 

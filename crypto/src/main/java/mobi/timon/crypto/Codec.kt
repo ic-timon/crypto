@@ -50,4 +50,43 @@ object Codec {
     fun fromBase64(base64: String): ByteArray {
         return Base64.getDecoder().decode(base64)
     }
+
+    /**
+     * Constant-time byte array comparison.
+     * 
+     * Compares two byte arrays in constant time to prevent timing attacks.
+     * This should be used when comparing sensitive data such as:
+     * - MACs / authentication tags
+     * - Password hashes
+     * - Cryptographic keys
+     * 
+     * @param a First byte array
+     * @param b Second byte array
+     * @return true if arrays are equal, false otherwise
+     */
+    fun constantTimeEquals(a: ByteArray, b: ByteArray): Boolean {
+        if (a.size != b.size) return false
+        var result = 0
+        for (i in a.indices) {
+            result = result or (a[i].toInt() xor b[i].toInt())
+        }
+        return result == 0
+    }
+
+    /**
+     * Securely wipe a byte array by overwriting with zeros.
+     * 
+     * Should be called to clear sensitive data from memory after use:
+     * - Private keys
+     * - Password bytes
+     * - Plaintext buffers
+     * 
+     * Note: This is a best-effort security measure. The JVM may still have
+     * copies of the data in memory due to garbage collection behavior.
+     * 
+     * @param data The byte array to wipe
+     */
+    fun wipe(data: ByteArray) {
+        data.fill(0)
+    }
 }
