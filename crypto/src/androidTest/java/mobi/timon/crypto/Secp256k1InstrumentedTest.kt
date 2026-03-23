@@ -102,7 +102,11 @@ class Secp256k1InstrumentedTest {
     fun keccak512_knownVector() {
         val input = "".toByteArray(Charsets.UTF_8)
         val hash = Hash.keccak512(input)
-        assertEquals(64, hash.size)
+        val expected = Codec.fromHex(
+            "0eab42de4c3ceb9235fc91acffe746b29c29a8c366b7c60e4e67c466f36a4304" +
+                "c00fa9caf9d87976ba469bcbe06713b435f091ef2769fb160cdab33d3670680e",
+        )
+        assertArrayEquals(expected, hash)
     }
 
     @Test

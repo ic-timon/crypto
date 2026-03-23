@@ -80,10 +80,12 @@ class HashHmacRandomInstrumentedTest {
     }
 
     @Test
-    fun randomInt_twoCalls_differ() {
-        val a = Random.int()
-        val b = Random.int()
-        assertNotEquals(a, b)
+    fun randomInt_samples_notAllIdentical() {
+        val samples = List(16) { Random.int() }
+        assertTrue(
+            samples.distinct().size >= 2,
+            "CSPRNG samples should not all be identical",
+        )
     }
 
     @Test
