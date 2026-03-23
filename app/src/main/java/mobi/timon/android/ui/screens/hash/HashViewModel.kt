@@ -16,6 +16,9 @@ enum class HashAlgorithm(val displayName: String) {
     SHA512("SHA-512"),
     BLAKE2B256("BLAKE2b-256"),
     MD5("MD5"),
+    RIPEMD160("RIPEMD-160"),
+    KECCAK256("Keccak-256"),
+    KECCAK512("Keccak-512"),
     HMAC_SHA256("HMAC-SHA256"),
     HMAC_SHA512("HMAC-SHA512")
 }
@@ -62,6 +65,9 @@ class HashViewModel : ViewModel() {
                 HashAlgorithm.SHA512 -> Codec.toHex(Hash.sha512(data))
                 HashAlgorithm.BLAKE2B256 -> Codec.toHex(Hash.blake2b256(data))
                 HashAlgorithm.MD5 -> Codec.toHex(Hash.md5(data))
+                HashAlgorithm.RIPEMD160 -> Codec.toHex(Hash.ripemd160(data))
+                HashAlgorithm.KECCAK256 -> Codec.toHex(Hash.keccak256(data))
+                HashAlgorithm.KECCAK512 -> Codec.toHex(Hash.keccak512(data))
                 HashAlgorithm.HMAC_SHA256 -> {
                     val key = currentState.keyInput.ifEmpty { "default" }.toByteArray()
                     Codec.toHex(Hmac.hmacSha256(data, key))
@@ -97,6 +103,15 @@ class HashViewModel : ViewModel() {
         })
         results.add(runSingleTest("MD5") {
             Codec.toHex(Hash.md5(testInput))
+        })
+        results.add(runSingleTest("RIPEMD-160") {
+            Codec.toHex(Hash.ripemd160(testInput))
+        })
+        results.add(runSingleTest("Keccak-256") {
+            Codec.toHex(Hash.keccak256(testInput))
+        })
+        results.add(runSingleTest("Keccak-512") {
+            Codec.toHex(Hash.keccak512(testInput))
         })
         results.add(runSingleTest("HMAC-SHA256") {
             Codec.toHex(Hmac.hmacSha256(testInput, "key".toByteArray()))

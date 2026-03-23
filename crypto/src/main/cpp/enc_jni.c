@@ -752,3 +752,280 @@ Java_mobi_timon_crypto_Ed25519_verify(JNIEnv *env, jobject obj, jbyteArray messa
     (*env)->ReleaseByteArrayElements(env, publicKey, publicKeyPtr, JNI_ABORT);
     return verifyBoolResult(env, result, outLen);
 }
+
+// === Hash Extended ===
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Hash_ripemd160(JNIEnv *env, jobject obj, jbyteArray data) {
+    if (data == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "ripemd160: input data is null");
+        return NULL;
+    }
+    jsize dataLen = (*env)->GetArrayLength(env, data);
+    jbyte *dataPtr = (*env)->GetByteArrayElements(env, data, NULL);
+    int outLen = 0;
+    char *result = Ripemd160((char *)dataPtr, dataLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, data, dataPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Hash_keccak256(JNIEnv *env, jobject obj, jbyteArray data) {
+    if (data == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "keccak256: input data is null");
+        return NULL;
+    }
+    jsize dataLen = (*env)->GetArrayLength(env, data);
+    jbyte *dataPtr = (*env)->GetByteArrayElements(env, data, NULL);
+    int outLen = 0;
+    char *result = Keccak256((char *)dataPtr, dataLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, data, dataPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Hash_keccak512(JNIEnv *env, jobject obj, jbyteArray data) {
+    if (data == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "keccak512: input data is null");
+        return NULL;
+    }
+    jsize dataLen = (*env)->GetArrayLength(env, data);
+    jbyte *dataPtr = (*env)->GetByteArrayElements(env, data, NULL);
+    int outLen = 0;
+    char *result = Keccak512((char *)dataPtr, dataLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, data, dataPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+// === Secp256k1 ===
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_generateKey(JNIEnv *env, jobject obj) {
+    int outLen = 0;
+    char *result = Secp256k1GenerateKey(&outLen);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_privateKeyToPublicKey(JNIEnv *env, jobject obj, jbyteArray privateKey, jboolean compressed) {
+    if (privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "secp256k1PrivateKeyToPublicKey: privateKey is null");
+        return NULL;
+    }
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = Secp256k1PrivateKeyToPublicKey((char *)privateKeyPtr, privateKeyLen, compressed ? 1 : 0, &outLen);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_sign(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray privateKey) {
+    if (message == NULL || privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "secp256k1Sign: input is null");
+        return NULL;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = Secp256k1Sign((char *)messagePtr, messageLen, (char *)privateKeyPtr, privateKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_mobi_timon_crypto_Secp256k1_verify(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray signature, jbyteArray publicKey) {
+    if (message == NULL || signature == NULL || publicKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "secp256k1Verify: input is null");
+        return JNI_FALSE;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize signatureLen = (*env)->GetArrayLength(env, signature);
+    jsize publicKeyLen = (*env)->GetArrayLength(env, publicKey);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *signaturePtr = (*env)->GetByteArrayElements(env, signature, NULL);
+    jbyte *publicKeyPtr = (*env)->GetByteArrayElements(env, publicKey, NULL);
+    int outLen = 0;
+    char *result = Secp256k1Verify((char *)messagePtr, messageLen, (char *)signaturePtr, signatureLen,
+                                   (char *)publicKeyPtr, publicKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, signature, signaturePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, publicKey, publicKeyPtr, JNI_ABORT);
+    return verifyBoolResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_recoverPublicKey(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray signature, jboolean compressed) {
+    if (message == NULL || signature == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "secp256k1RecoverPublicKey: input is null");
+        return NULL;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize signatureLen = (*env)->GetArrayLength(env, signature);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *signaturePtr = (*env)->GetByteArrayElements(env, signature, NULL);
+    int outLen = 0;
+    char *result = Secp256k1RecoverPublicKey((char *)messagePtr, messageLen, (char *)signaturePtr, signatureLen,
+                                              compressed ? 1 : 0, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, signature, signaturePtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+// === Schnorr ===
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_schnorrSign(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray privateKey) {
+    if (message == NULL || privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "schnorrSign: input is null");
+        return NULL;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = SchnorrSign((char *)messagePtr, messageLen, (char *)privateKeyPtr, privateKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_mobi_timon_crypto_Secp256k1_schnorrVerify(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray signature, jbyteArray publicKey) {
+    if (message == NULL || signature == NULL || publicKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "schnorrVerify: input is null");
+        return JNI_FALSE;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize signatureLen = (*env)->GetArrayLength(env, signature);
+    jsize publicKeyLen = (*env)->GetArrayLength(env, publicKey);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *signaturePtr = (*env)->GetByteArrayElements(env, signature, NULL);
+    jbyte *publicKeyPtr = (*env)->GetByteArrayElements(env, publicKey, NULL);
+    int outLen = 0;
+    char *result = SchnorrVerify((char *)messagePtr, messageLen, (char *)signaturePtr, signatureLen,
+                                 (char *)publicKeyPtr, publicKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, signature, signaturePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, publicKey, publicKeyPtr, JNI_ABORT);
+    return verifyBoolResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_schnorrPrivateKeyToPublicKey(JNIEnv *env, jobject obj, jbyteArray privateKey) {
+    if (privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "schnorrPrivateKeyToPublicKey: privateKey is null");
+        return NULL;
+    }
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = SchnorrPrivateKeyToPublicKey((char *)privateKeyPtr, privateKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+// === BLS ===
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Bls_generateKey(JNIEnv *env, jobject obj) {
+    int outLen = 0;
+    char *result = BlsGenerateKey(&outLen);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Bls_privateKeyToPublicKey(JNIEnv *env, jobject obj, jbyteArray privateKey) {
+    if (privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "blsPrivateKeyToPublicKey: privateKey is null");
+        return NULL;
+    }
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = BlsPrivateKeyToPublicKey((char *)privateKeyPtr, privateKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Bls_sign(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray privateKey) {
+    if (message == NULL || privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "blsSign: input is null");
+        return NULL;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = BlsSign((char *)messagePtr, messageLen, (char *)privateKeyPtr, privateKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_mobi_timon_crypto_Bls_verify(JNIEnv *env, jobject obj, jbyteArray message, jbyteArray signature, jbyteArray publicKey) {
+    if (message == NULL || signature == NULL || publicKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "blsVerify: input is null");
+        return JNI_FALSE;
+    }
+    jsize messageLen = (*env)->GetArrayLength(env, message);
+    jsize signatureLen = (*env)->GetArrayLength(env, signature);
+    jsize publicKeyLen = (*env)->GetArrayLength(env, publicKey);
+    jbyte *messagePtr = (*env)->GetByteArrayElements(env, message, NULL);
+    jbyte *signaturePtr = (*env)->GetByteArrayElements(env, signature, NULL);
+    jbyte *publicKeyPtr = (*env)->GetByteArrayElements(env, publicKey, NULL);
+    int outLen = 0;
+    char *result = BlsVerify((char *)messagePtr, messageLen, (char *)signaturePtr, signatureLen,
+                             (char *)publicKeyPtr, publicKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, message, messagePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, signature, signaturePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, publicKey, publicKeyPtr, JNI_ABORT);
+    return verifyBoolResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Bls_aggregateSignatures(JNIEnv *env, jobject obj, jbyteArray signatures, jint count) {
+    if (signatures == NULL || count <= 0) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "blsAggregateSignatures: input is null or count is invalid");
+        return NULL;
+    }
+    jsize signaturesLen = (*env)->GetArrayLength(env, signatures);
+    jbyte *signaturesPtr = (*env)->GetByteArrayElements(env, signatures, NULL);
+    int outLen = 0;
+    char *result = BlsAggregateSignatures((char *)signaturesPtr, signaturesLen, count, &outLen);
+    (*env)->ReleaseByteArrayElements(env, signatures, signaturesPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Bls_aggregatePublicKeys(JNIEnv *env, jobject obj, jbyteArray publicKeys, jint count) {
+    if (publicKeys == NULL || count <= 0) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "blsAggregatePublicKeys: input is null or count is invalid");
+        return NULL;
+    }
+    jsize publicKeysLen = (*env)->GetArrayLength(env, publicKeys);
+    jbyte *publicKeysPtr = (*env)->GetByteArrayElements(env, publicKeys, NULL);
+    int outLen = 0;
+    char *result = BlsAggregatePublicKeys((char *)publicKeysPtr, publicKeysLen, count, &outLen);
+    (*env)->ReleaseByteArrayElements(env, publicKeys, publicKeysPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}

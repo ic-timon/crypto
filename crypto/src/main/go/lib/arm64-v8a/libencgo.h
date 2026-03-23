@@ -38,6 +38,9 @@ extern const char *_GoStringPtr(_GoString_ s);
 
 
 
+
+
+
 #line 3 "utils.go"
  #include <stdlib.h>
 
@@ -109,6 +112,12 @@ extern char* AesGcmDecrypt(char* ciphertext, int ciphertextLen, char* key, int k
 extern char* Argon2idHash(char* password, int passwordLen, char* salt, int saltLen, int timeCost, int memoryCost, int parallelism, int keyLen, int* outLen);
 extern char* BcryptHash(char* password, int passwordLen, int cost, int* outLen);
 extern char* BcryptVerify(char* password, int passwordLen, char* hash, int hashLen, int* outLen);
+extern char* BlsGenerateKey(int* outLen);
+extern char* BlsPrivateKeyToPublicKey(char* privateKey, int privateKeyLen, int* outLen);
+extern char* BlsSign(char* message, int messageLen, char* privateKey, int privateKeyLen, int* outLen);
+extern char* BlsVerify(char* message, int messageLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
+extern char* BlsAggregateSignatures(char* signatures, int signaturesLen, int count, int* outLen);
+extern char* BlsAggregatePublicKeys(char* publicKeys, int publicKeysLen, int count, int* outLen);
 extern char* AesCbcEncrypt(char* plaintext, int plaintextLen, char* key, int keyLen, int* outLen);
 extern char* AesCbcDecrypt(char* ciphertext, int ciphertextLen, char* key, int keyLen, int* outLen);
 extern char* ChaCha20Poly1305Encrypt(char* plaintext, int plaintextLen, char* key, int keyLen, int* outLen);
@@ -131,6 +140,9 @@ extern char* HmacSha512(char* data, int dataLen, char* key, int keyLen, int* out
 extern char* Scrypt(char* password, int passwordLen, char* salt, int saltLen, int keyLen, int* outLen);
 extern char* Pbkdf2(char* password, int passwordLen, char* salt, int saltLen, int iterations, int keyLen, int* outLen);
 extern char* Hkdf(char* ikm, int ikmLen, char* salt, int saltLen, char* info, int infoLen, int keyLen, int* outLen);
+extern char* Ripemd160(char* data, int dataLen, int* outLen);
+extern char* Keccak256(char* data, int dataLen, int* outLen);
+extern char* Keccak512(char* data, int dataLen, int* outLen);
 extern char* RandomBytes(int length, int* outLen);
 extern char* RsaGenerateKey(int bits, int* outLen);
 extern char* RsaEncrypt(char* plaintext, int plaintextLen, char* publicKey, int publicKeyLen, int* outLen);
@@ -138,6 +150,14 @@ extern char* RsaDecrypt(char* ciphertext, int ciphertextLen, char* privateKey, i
 extern char* RsaSign(char* message, int messageLen, char* privateKey, int privateKeyLen, int* outLen);
 extern char* RsaVerify(char* message, int messageLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
 extern char* RsaPrivateKeyToPublicKey(char* privateKey, int privateKeyLen, int* outLen);
+extern char* Secp256k1GenerateKey(int* outLen);
+extern char* Secp256k1PrivateKeyToPublicKey(char* privateKey, int privateKeyLen, int compressed, int* outLen);
+extern char* Secp256k1Sign(char* message, int messageLen, char* privateKey, int privateKeyLen, int* outLen);
+extern char* Secp256k1Verify(char* message, int messageLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
+extern char* Secp256k1RecoverPublicKey(char* message, int messageLen, char* signature, int signatureLen, int compressed, int* outLen);
+extern char* SchnorrSign(char* message, int messageLen, char* privateKey, int privateKeyLen, int* outLen);
+extern char* SchnorrVerify(char* message, int messageLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
+extern char* SchnorrPrivateKeyToPublicKey(char* privateKey, int privateKeyLen, int* outLen);
 extern char* Sha512(char* data, int dataLen, int* outLen);
 extern char* AesCtrEncrypt(char* plaintext, int plaintextLen, char* key, int keyLen, int* outLen);
 extern char* AesCtrDecrypt(char* ciphertext, int ciphertextLen, char* key, int keyLen, int* outLen);

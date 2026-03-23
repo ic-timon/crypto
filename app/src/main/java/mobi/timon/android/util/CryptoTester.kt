@@ -2,6 +2,7 @@ package mobi.timon.android.util
 
 import mobi.timon.android.ui.components.TestStatus
 import mobi.timon.crypto.Aead
+import mobi.timon.crypto.Bls
 import mobi.timon.crypto.Cbc
 import mobi.timon.crypto.Codec
 import mobi.timon.crypto.Ecdsa
@@ -11,6 +12,7 @@ import mobi.timon.crypto.Hmac
 import mobi.timon.crypto.Kdf
 import mobi.timon.crypto.Random
 import mobi.timon.crypto.Rsa
+import mobi.timon.crypto.Secp256k1
 import mobi.timon.crypto.Stream
 import mobi.timon.crypto.Xts
 
@@ -76,6 +78,27 @@ object CryptoTester {
         val mac = Hmac.hmacSha512(data, key)
         val hex = Codec.toHex(mac)
         "HMAC: $hex (64 bytes)"
+    }
+    
+    fun testRipemd160(): TestResult = runTest("RIPEMD-160") {
+        val data = "Hello, World!".toByteArray()
+        val hash = Hash.ripemd160(data)
+        val hex = Codec.toHex(hash)
+        "Hash: $hex (20 bytes)"
+    }
+    
+    fun testKeccak256(): TestResult = runTest("Keccak-256") {
+        val data = "Hello, World!".toByteArray()
+        val hash = Hash.keccak256(data)
+        val hex = Codec.toHex(hash)
+        "Hash: $hex (32 bytes)"
+    }
+    
+    fun testKeccak512(): TestResult = runTest("Keccak-512") {
+        val data = "Hello, World!".toByteArray()
+        val hash = Hash.keccak512(data)
+        val hex = Codec.toHex(hash)
+        "Hash: $hex (64 bytes)"
     }
     
     fun testAesGcm(): TestResult = runTest("AES-GCM") {
@@ -234,6 +257,54 @@ object CryptoTester {
         }
     }
     
+    fun testSecp256k1(): TestResult = runTest("ECDSA-secp256k1") {
+        val privateKey = Secp256k1.generateKey()
+        val publicKey = Secp256k1.privateKeyToPublicKey(privateKey, true)
+        val message = "Hello, World!".toByteArray()
+        val signature = Secp256k1.sign(message, privateKey)
+        val verified = Secp256k1.verify(message, signature, publicKey)
+        if (verified) "Sign/Verify: OK (${signature.size} bytes signature)" 
+        else throw AssertionError("secp256k1 verification failed")
+    }
+    
+    fun testSchnorr(): TestResult = runTest("Schnorr (secp256k1)") {
+        val privateKey = Secp256k1.generateKey()
+        val publicKey = Secp256k1.schnorrPrivateKeyToPublicKey(privateKey)
+        val message = "Hello, World!".toByteArray()
+        val signature = Secp256k1.schnorrSign(message, privateKey)
+        val verified = Secp256k1.schnorrVerify(message, signature, publicKey)
+        if (verified) "Sign/Verify: OK (${signature.size} bytes signature)" 
+        else throw AssertionError("Schnorr verification failed")
+    }
+    
+    fun testBls(): TestResult = runTest("BLS12-381") {
+        val privateKey = Bls.generateKey()
+        val publicKey = Bls.privateKeyToPublicKey(privateKey)
+        val message = "Hello, World!".toByteArray()
+        val signature = Bls.sign(message, privateKey)
+        val verified = Bls.verify(message, signature, publicKey)
+        if (verified) "Sign/Verify: OK (${signature.size} bytes signature)" 
+        else throw AssertionError("BLS verification failed")
+    }
+    
+    fun testBlsAggregation(): TestResult = runTest("BLS Aggregation") {
+        val sk1 = Bls.generateKey()
+        val sk2 = Bls.generateKey()
+        val pk1 = Bls.privateKeyToPublicKey(sk1)
+        val pk2 = Bls.privateKeyToPublicKey(sk2)
+        val message = "Same message".toByteArray()
+        
+        val sig1 = Bls.sign(message, sk1)
+        val sig2 = Bls.sign(message, sk2)
+        
+        val aggSig = Bls.aggregateSignatures(sig1 + sig2, 2)
+        val aggPk = Bls.aggregatePublicKeys(pk1 + pk2, 2)
+        
+        val verified = Bls.verify(message, aggSig, aggPk)
+        if (verified) "Aggregate Sign/Verify: OK" 
+        else throw AssertionError("BLS aggregation verification failed")
+    }
+    
     fun testRandomBytes(): TestResult = runTest("Random Bytes") {
         val bytes1 = Random.bytes(32)
         val bytes2 = Random.bytes(32)
@@ -266,6 +337,9 @@ object CryptoTester {
         testSha512(),
         testBlake2b256(),
         testMd5(),
+        testRipemd160(),
+        testKeccak256(),
+        testKeccak512(),
         testHmacSha256(),
         testHmacSha512()
     )
@@ -291,6 +365,10 @@ object CryptoTester {
     fun runAllSignTests(): List<TestResult> = listOf(
         testEd25519(),
         testEcdsa(),
+        testSecp256k1(),
+        testSchnorr(),
+        testBls(),
+        testBlsAggregation(),
         testRsa()
     )
     

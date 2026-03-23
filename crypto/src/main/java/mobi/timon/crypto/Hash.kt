@@ -15,4 +15,10 @@ object Hash {
     external fun blake2b256(data: ByteArray): ByteArray
 
     external fun md5(data: ByteArray): ByteArray
+
+    external fun ripemd160(data: ByteArray): ByteArray
+
+    external fun keccak256(data: ByteArray): ByteArray
+
+    external fun keccak512(data: ByteArray): ByteArray
 }

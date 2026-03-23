@@ -42,7 +42,7 @@ repositories {
 ### 2. 添加依赖
 
 ```kotlin
-implementation("io.github.ic-timon.crypto:crypto:1.0.4")
+implementation("io.github.ic-timon.crypto:crypto:1.1.0")
 ```
 
 ### 3. 认证配置
@@ -62,7 +62,7 @@ gpr.token=你的GitHub Personal Access Token (read:packages权限)
 
 | 门面          | 能力                                           |
 |-------------|----------------------------------------------|
-| **Hash**    | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 |
+| **Hash**    | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
 | **Hmac**    | HMAC-SHA256 / HMAC-SHA512                    |
 | **Random**  | CSPRNG bytes / int / long                    |
 | **Codec**   | Hex / Base64                                 |
@@ -73,6 +73,8 @@ gpr.token=你的GitHub Personal Access Token (read:packages权限)
 | **Kdf**     | bcrypt / Argon2id / scrypt / PBKDF2 / HKDF   |
 | **Rsa**     | 密钥生成 / OAEP / PKCS#1 v1.5 签名验签               |
 | **Ecdsa**   | P-224 / P-256 / P-384 / P-521                |
+| **Secp256k1** | 密钥生成 / ECDSA 签名验签 / 公钥恢复 / Schnorr 签名验签 |
+| **Bls**     | BLS12-381：密钥生成、签名验签、签名聚合、公钥聚合 |
 | **Ed25519** | 密钥生成 / 签名 / 验签                               |
 
 ---
@@ -82,15 +84,38 @@ gpr.token=你的GitHub Personal Access Token (read:packages权限)
 ```kotlin
 import mobi.timon.crypto.*
 
+// Hash
 val digest = Hash.sha256("hello".toByteArray())
 println(Codec.toHex(digest))
 
+val keccak = Hash.keccak256("hello".toByteArray())
+val ripe = Hash.ripemd160("hello".toByteArray())
+
+// AES-GCM
 val key = Random.bytes(32)
 val ct = Aead.aesGcmEncrypt("secret".toByteArray(), key)
 val pt = Aead.aesGcmDecrypt(ct, key)
 
+// bcrypt
 val bcryptHash = Kdf.bcryptHash("password".toByteArray(), cost = 10)
 val ok = Kdf.bcryptVerify("password".toByteArray(), bcryptHash)
+
+// secp256k1 ECDSA
+val sk = Secp256k1.generateKey()
+val pk = Secp256k1.privateKeyToPublicKey(sk, true)
+val sig = Secp256k1.sign("message".toByteArray(), sk)
+val valid = Secp256k1.verify("message".toByteArray(), sig, pk)
+
+// Schnorr (secp256k1)
+val schnorrPk = Secp256k1.schnorrPrivateKeyToPublicKey(sk)
+val schnorrSig = Secp256k1.schnorrSign("message".toByteArray(), sk)
+val schnorrValid = Secp256k1.schnorrVerify("message".toByteArray(), schnorrSig, schnorrPk)
+
+// BLS12-381
+val blsSk = Bls.generateKey()
+val blsPk = Bls.privateKeyToPublicKey(blsSk)
+val blsSig = Bls.sign("message".toByteArray(), blsSk)
+val blsValid = Bls.verify("message".toByteArray(), blsSig, blsPk)
 ```
 
 ---
@@ -102,6 +127,20 @@ val ok = Kdf.bcryptVerify("password".toByteArray(), bcryptHash)
 **AES-CBC**：输出格式 `iv(16字节) + ciphertext`，IV 随机生成并拼在密文前，解密时自动提取。使用 PKCS7 填充。
 
 **Ed25519**：密钥对序列化为一整个 96 字节数组，前 32 字节是公钥，后 64 字节是私钥（种子+公钥），方便一次性存储/传输。
+
+**secp256k1**：
+- `generateKey()` 返回 32 字节私钥
+- `sign()` 返回 65 字节签名：`r(32) ‖ s(32) ‖ recoveryId(1)`
+- `privateKeyToPublicKey(privateKey, compressed)`：`compressed=true` 返回 33 字节压缩公钥，`false` 返回 65 字节未压缩公钥
+
+**Schnorr (secp256k1)**：
+- `schnorrSign()` 返回 64 字节签名：`r(32) ‖ s(32)`
+- `schnorrPrivateKeyToPublicKey()` 返回 32 字节 x-only 公钥
+
+**BLS12-381**：
+- 私钥 32 字节，公钥 48 字节（G1 点压缩）
+- 签名 96 字节（G2 点压缩）
+- 聚合签名仍为 96 字节，聚合公钥仍为 48 字节
 
 > **弱算法提示**：MD5、SHA-1 存在碰撞攻击风险，DES 密钥仅 56 位可被暴力破解。仅建议在兼容旧协议时使用。
 
