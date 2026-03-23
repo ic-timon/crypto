@@ -7,7 +7,9 @@
 [![Android](https://img.shields.io/badge/Android-33%2B-3DDC84?logo=android)](https://developer.android.com/)
 [![CI](https://github.com/ic-timon/crypto/actions/workflows/release.yml/badge.svg)](https://github.com/ic-timon/crypto/actions/workflows/release.yml)
 
-Native Android cryptography library with a Kotlin API. Internally it uses a **Kotlin → JNI (C) → Go** pipeline, backed by the Go standard library and `golang.org/x/crypto`.
+A native Android cryptography library with a Kotlin API. Under the hood, it's a **Kotlin → JNI (C) → Go** pipeline — because why settle for one language when you can have three?
+
+Powered by the Go standard library and `golang.org/x/crypto`. Battle-tested (by me, mostly).
 
 **简体中文:** [Readme_CN.md](Readme_CN.md)
 
@@ -25,6 +27,7 @@ Native Android cryptography library with a Kotlin API. Internally it uses a **Ko
 - [Local build](#local-build)
 - [Testing](#testing)
 - [Repository layout](#repository-layout)
+- [Contributing](#contributing)
 
 ---
 
@@ -257,6 +260,18 @@ crypto/
 
 ---
 
+## Contributing
+
+Found a bug? Have a feature idea? Want to add a cool new algorithm?
+
+**[Open an issue](https://github.com/ic-timon/crypto/issues)** — I'd love to hear from you!
+
+Whether it's a bug report, feature request, documentation improvement, or just a "hey, this API is confusing" — all feedback is welcome. Don't be shy.
+
+Check out [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide on how to contribute.
+
+---
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — do whatever you want, just don't blame me if something breaks.
