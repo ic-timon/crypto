@@ -16,6 +16,7 @@ Native Android cryptography library with a Kotlin API. Internally it uses a **Ko
 ## Contents
 
 - [Installation](#installation)
+- [ProGuard / R8](#proguard--r8)
 - [Architecture](#architecture)
 - [API overview](#api-overview)
 - [Usage examples](#usage-examples)
@@ -56,6 +57,20 @@ GitHub Packages requires credentials. In `local.properties`:
 ```properties
 gpr.user=YOUR_GITHUB_USERNAME
 gpr.token=YOUR_GITHUB_PERSONAL_ACCESS_TOKEN (read:packages)
+```
+
+---
+
+## ProGuard / R8
+
+Kotlin `external` functions bind to JNI symbols such as `Java_mobi_timon_crypto_*` in `libencjni`. If **R8 / minification** renames or removes those classes or members, native resolution fails at runtime.
+
+- The library ships **`consumer-rules.pro`**; Gradle **merges** it into consuming apps, so you usually need **no extra rules**.
+- If you vendor the module, use an older AAR without consumer rules, or override ProGuard inputs, add the same keeps to your app `proguard-rules.pro`:
+
+```proguard
+# mobi.timon.crypto — JNI: keep names visible to libencjni
+-keep class mobi.timon.crypto.** { *; }
 ```
 
 ---

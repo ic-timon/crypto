@@ -16,6 +16,7 @@ Android 原生密码学库，对外暴露 Kotlin API，内部通过 **Kotlin →
 ## 目录
 
 - [安装](#安装)
+- [ProGuard / R8](#proguard--r8)
 - [架构](#架构)
 - [API 一览](#api-一览)
 - [使用示例](#使用示例)
@@ -56,6 +57,20 @@ GitHub Packages 需要认证。在 `local.properties` 中添加：
 ```properties
 gpr.user=你的GitHub用户名
 gpr.token=你的GitHub Personal Access Token (read:packages权限)
+```
+
+---
+
+## ProGuard / R8
+
+Kotlin `external` 对应 JNI 符号（如 `Java_mobi_timon_crypto_*`），依赖 **类名与成员名** 与 `libencjni` 一致。开启 **R8 / 代码压缩** 时若混淆或剔除相关类，会在运行时无法链接 native。
+
+- 本库已提供 **`consumer-rules.pro`**，Gradle 会**自动合并**到依赖方，一般**无需**在应用里再抄一遍。
+- 若你本地源码依赖、使用未带 consumer 规则的旧 AAR、或自行覆盖了混淆配置，可在应用的 `proguard-rules.pro` 中手动加入：
+
+```proguard
+# mobi.timon.crypto — JNI：保留 libencjni 可见的类名
+-keep class mobi.timon.crypto.** { *; }
 ```
 
 ---
