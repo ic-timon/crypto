@@ -7,29 +7,33 @@
 [![Android](https://img.shields.io/badge/Android-33%2B-3DDC84?logo=android)](https://developer.android.com/)
 [![CI](https://github.com/ic-timon/crypto/actions/workflows/release.yml/badge.svg)](https://github.com/ic-timon/crypto/actions/workflows/release.yml)
 
-Android 原生密码学库，对外暴露 Kotlin API，内部通过 **Kotlin → JNI（C）→ Go** 调用链实现，依赖 Go 标准库与 `golang.org/x/crypto`。
+Native Android cryptography library with a Kotlin API. Internally it uses a **Kotlin → JNI (C) → Go** pipeline, backed by the Go standard library and `golang.org/x/crypto`.
+
+**简体中文:** [Readme_CN.md](Readme_CN.md)
 
 ---
 
-## 目录
+## Contents
 
-- [安装](#安装)
-- [API 一览](#api-一览)
-- [使用示例](#使用示例)
-- [密码学格式与安全提示](#密码学格式与安全提示)
-- [本地构建](#本地构建)
-- [测试](#测试)
-- [目录结构](#目录结构)
+- [Installation](#installation)
+- [Architecture](#architecture)
+- [API overview](#api-overview)
+- [Usage examples](#usage-examples)
+- [Wire formats and security notes](#wire-formats-and-security-notes)
+- [Maintenance](#maintenance)
+- [Local build](#local-build)
+- [Testing](#testing)
+- [Repository layout](#repository-layout)
 
 ---
 
-## 安装
+## Installation
 
-`crypto` 已发布到 GitHub Packages。
+`crypto` is published to GitHub Packages.
 
-### 1. 配置仓库
+### 1. Add the repository
 
-在 `settings.gradle.kts` 中添加：
+In `settings.gradle.kts`:
 
 ```kotlin
 repositories {
@@ -39,47 +43,62 @@ repositories {
 }
 ```
 
-### 2. 添加依赖
+### 2. Add the dependency
 
 ```kotlin
 implementation("io.github.ic-timon.crypto:crypto:1.1.0")
 ```
 
-### 3. 认证配置
+### 3. Authentication
 
-GitHub Packages 需要认证。在 `local.properties` 中添加：
+GitHub Packages requires credentials. In `local.properties`:
 
 ```properties
-gpr.user=你的GitHub用户名
-gpr.token=你的GitHub Personal Access Token (read:packages权限)
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.token=YOUR_GITHUB_PERSONAL_ACCESS_TOKEN (read:packages)
 ```
 
 ---
 
-## API 一览
+## Architecture
 
-失败时统一抛出 `mobi.timon.crypto.EncException`。
+```
+Kotlin (object / external)
+    ↓ JNI
+C (enc_jni.c)
+    ↓ CGO
+Go (//export)
+```
 
-| 门面          | 能力                                           |
-|-------------|----------------------------------------------|
-| **Hash**    | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
-| **Hmac**    | HMAC-SHA256 / HMAC-SHA512                    |
-| **Random**  | CSPRNG bytes / int / long                    |
-| **Codec**   | Hex / Base64                                 |
-| **Aead**    | AES-GCM / ChaCha20-Poly1305                  |
-| **Cbc**     | AES-CBC / DES-CBC（PKCS7）                     |
-| **Stream**  | AES-CTR / ChaCha20                           |
-| **Xts**     | AES-XTS                                      |
-| **Kdf**     | bcrypt / Argon2id / scrypt / PBKDF2 / HKDF   |
-| **Rsa**     | 密钥生成 / OAEP / PKCS#1 v1.5 签名验签               |
-| **Ecdsa**   | P-224 / P-256 / P-384 / P-521                |
-| **Secp256k1** | 密钥生成 / ECDSA 签名验签 / 公钥恢复 / Schnorr 签名验签 |
-| **Bls**     | BLS12-381：密钥生成、签名验签、签名聚合、公钥聚合 |
-| **Ed25519** | 密钥生成 / 签名 / 验签                               |
+- Load order is documented in `Enc.kt`: `encgo` first, then `encjni`.
+- Building Go produces per-ABI `libencgo.so` and `libencgo.h`; CMake links them by ABI.
 
 ---
 
-## 使用示例
+## API overview
+
+Failures throw `mobi.timon.crypto.EncException`.
+
+| Facade        | Capabilities |
+|---------------|--------------|
+| **Hash**      | SHA-1 / SHA-256 / SHA-512 / blake2b256 / MD5 / RIPEMD-160 / Keccak-256 / Keccak-512 |
+| **Hmac**      | HMAC-SHA256 / HMAC-SHA512 |
+| **Random**    | CSPRNG bytes / int / long |
+| **Codec**     | Hex / Base64 |
+| **Aead**      | AES-GCM / ChaCha20-Poly1305 |
+| **Cbc**       | AES-CBC / DES-CBC (PKCS#7) |
+| **Stream**    | AES-CTR / ChaCha20 |
+| **Xts**       | AES-XTS |
+| **Kdf**       | bcrypt / Argon2id / scrypt / PBKDF2 / HKDF |
+| **Rsa**       | Key generation / OAEP / PKCS#1 v1.5 sign & verify |
+| **Ecdsa**     | P-224 / P-256 / P-384 / P-521 |
+| **Secp256k1** | Key generation / ECDSA sign & verify / pubkey recovery / Schnorr sign & verify |
+| **Bls**       | BLS12-381: keys, sign & verify, signature aggregation, pubkey aggregation |
+| **Ed25519**   | Key generation / sign / verify |
+
+---
+
+## Usage examples
 
 ```kotlin
 import mobi.timon.crypto.*
@@ -120,44 +139,81 @@ val blsValid = Bls.verify("message".toByteArray(), blsSig, blsPk)
 
 ---
 
-## 密码学格式与安全提示
+## Wire formats and security notes
 
-**AES-GCM / ChaCha20-Poly1305**：输出格式 `nonce(12字节) + ciphertext + tag(16字节)`，nonce 和 tag 自动拼接返回，解密时无需单独传入。
+### Symmetric encryption
 
-**AES-CBC**：输出格式 `iv(16字节) + ciphertext`，IV 随机生成并拼在密文前，解密时自动提取。使用 PKCS7 填充。
+**AES-GCM / ChaCha20-Poly1305**: Ciphertext layout is `nonce (12 bytes) + ciphertext + tag (16 bytes)`. Nonce and tag are concatenated in the returned blob; callers do not pass them separately for decryption.
 
-**Ed25519**：密钥对序列化为一整个 96 字节数组，前 32 字节是公钥，后 64 字节是私钥（种子+公钥），方便一次性存储/传输。
+**AES-CBC**: Layout is `IV (16 bytes) + ciphertext`. The IV is random and prepended; decryption strips it. PKCS#7 padding. Key sizes 16 / 24 / 32 bytes (AES-128/192/256).
 
-**secp256k1**：
-- `generateKey()` 返回 32 字节私钥
-- `sign()` 返回 65 字节签名：`r(32) ‖ s(32) ‖ recoveryId(1)`
-- `privateKeyToPublicKey(privateKey, compressed)`：`compressed=true` 返回 33 字节压缩公钥，`false` 返回 65 字节未压缩公钥
+**DES-CBC**: Layout is `IV (8 bytes) + ciphertext`; key length 8 bytes. **Legacy interoperability only.**
 
-**Schnorr (secp256k1)**：
-- `schnorrSign()` 返回 64 字节签名：`r(32) ‖ s(32)`
-- `schnorrPrivateKeyToPublicKey()` 返回 32 字节 x-only 公钥
+**AES-CTR / ChaCha20**: Nonce + ciphertext framing is fixed by the implementation. **No built-in integrity**—use with care.
 
-**BLS12-381**：
-- 私钥 32 字节，公钥 48 字节（G1 点压缩）
-- 签名 96 字节（G2 点压缩）
-- 聚合签名仍为 96 字节，聚合公钥仍为 48 字节
+**AES-XTS**: Keys are 32 or 64 bytes; plaintext length should be a multiple of 16 bytes; `sectorNum` feeds the sector/tweak.
 
-> **弱算法提示**：MD5、SHA-1 存在碰撞攻击风险，DES 密钥仅 56 位可被暴力破解。仅建议在兼容旧协议时使用。
+### Asymmetric encryption and signatures
+
+**RSA**: Keys are **DER bytes** (PKCS#8 / PKIX), not PEM strings.
+
+**Ed25519**: Keypairs are serialized as one 96-byte array: first 32 bytes public key, next 64 bytes private key material (seed + public key).
+
+**secp256k1**:
+- `generateKey()` returns a 32-byte private key.
+- `sign()` returns a 65-byte signature: `r (32) ‖ s (32) ‖ recoveryId (1)`.
+- `privateKeyToPublicKey(privateKey, compressed)`: `compressed = true` → 33-byte compressed pubkey; `false` → 65-byte uncompressed.
+
+**Schnorr (secp256k1)**:
+- `schnorrSign()` returns a 64-byte signature: `r (32) ‖ s (32)`.
+- `schnorrPrivateKeyToPublicKey()` returns a 32-byte x-only public key.
+
+**BLS12-381**:
+- Private key 32 bytes; public key 48 bytes (G1 compressed).
+- Signature 96 bytes (G2 compressed).
+- Aggregated signature remains 96 bytes; aggregated pubkey remains 48 bytes.
+
+### Key derivation
+
+**bcrypt**: Both `bcryptHash` output and the `hash` argument to `bcryptVerify` are `ByteArray` values (not strings).
+
+**scrypt**: N, r, and p are fixed on the Go side; Kotlin only exposes `keyLen`.
+
+### Security note
+
+> **Weak algorithms**: MD5 and SHA-1 are vulnerable to collision attacks; DES has only 56 effective key bits and is brute-forceable. Prefer them only for legacy protocol compatibility.
 
 ---
 
-## 本地构建
-预编译的 `.so` 文件已包含在仓库中（体积很小），可直接使用。如需自行编译：
+## Maintenance
 
-需要 Go 1.26+ 和 Android NDK。
+When changing native behavior, keep these in sync:
+
+1. **`external fun`** declarations in `src/main/java/mobi/timon/crypto/*.kt`
+2. **`Java_mobi_timon_crypto_*`** JNI entry points in `src/main/cpp/enc_jni.c`
+3. **`//export`** functions in `src/main/go/*.go` and the generated **`libencgo.h`**
+
+C buffers returned from Go are freed in JNI via `FreeBytes`; boolean verify paths use `verifyBoolResult`. Empty-input semantics for hash/HMAC and similar APIs follow the Go implementation.
+
+---
+
+## Local build
+
+Prebuilt `.so` binaries are checked in; you can use them as-is. To rebuild:
+
+**Requirements**: Go 1.26+, Android NDK, and a valid `sdk.dir` in `local.properties`.
 
 ```bash
+# Go only (per-ABI libencgo.so)
+./gradlew :crypto:compileGoDebug
+
+# Full module build
 ./gradlew :crypto:assembleRelease
 ```
 
 ---
 
-## 测试
+## Testing
 
 ```bash
 ./gradlew :crypto:connectedDebugAndroidTest
@@ -165,19 +221,24 @@ val blsValid = Bls.verify("message".toByteArray(), blsSig, blsPk)
 
 ---
 
-## 目录结构
+## Repository layout
 
 ```
 crypto/
 ├── src/main/java/mobi/timon/crypto/   # Kotlin API
-├── src/main/cpp/                       # JNI 桥接
-├── src/main/go/                        # Go 实现
-└── src/androidTest/                    # 仪器化测试
+├── src/main/cpp/                       # JNI bridge
+├── src/main/go/                        # Go implementation
+└── src/androidTest/                    # Instrumented tests
 ```
 
 ---
 
-本项目是 CI 自动构建并发布到 GitHub Packages 与 Releases。
+## References
+
+- [Go crypto](https://pkg.go.dev/crypto)
+- [golang.org/x/crypto](https://pkg.go.dev/golang.org/x/crypto)
+- [btcd/btcec/v2](https://pkg.go.dev/github.com/btcsuite/btcd/btcec/v2) — secp256k1 / Schnorr
+- [kilic/bls12-381](https://pkg.go.dev/github.com/kilic/bls12-381) — BLS12-381
 
 ---
 
