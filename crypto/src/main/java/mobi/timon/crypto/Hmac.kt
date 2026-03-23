@@ -33,4 +33,15 @@ object Hmac {
      */
     external fun hmacSha512(data: ByteArray, key: ByteArray): ByteArray
 
+    /**
+     * Computes HMAC-SHA1.
+     * 
+     * **Warning**: SHA-1 is cryptographically broken. Use only for legacy compatibility.
+     * 
+     * @param data Input data to authenticate
+     * @param key Secret key for authentication
+     * @return 20-byte HMAC-SHA1 output
+     * @throws EncException if computation fails
+     */
+    external fun hmacSha1(data: ByteArray, key: ByteArray): ByteArray
 }

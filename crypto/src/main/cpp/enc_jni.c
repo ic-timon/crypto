@@ -96,6 +96,21 @@ Java_mobi_timon_crypto_Hash_sha384(JNIEnv *env, jobject obj, jbyteArray data) {
 }
 
 JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Hash_sha512_1256(JNIEnv *env, jobject obj, jbyteArray data) {
+    if (data == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "sha512_256: input data is null");
+        return NULL;
+    }
+    jsize dataLen = (*env)->GetArrayLength(env, data);
+    jbyte *dataPtr = (*env)->GetByteArrayElements(env, data, NULL);
+    int outLen = 0;
+    char *result = Sha512_256((char *)dataPtr, dataLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, data, dataPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jbyteArray JNICALL
 Java_mobi_timon_crypto_Hash_blake2b256(JNIEnv *env, jobject obj, jbyteArray data) {
     if (data == NULL) {
         jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");

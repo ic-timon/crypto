@@ -99,6 +99,18 @@ object Hash {
     external fun sha384(data: ByteArray): ByteArray
 
     /**
+     * Computes SHA-512/256 hash.
+     * 
+     * SHA-512/256 is a SHA-512 truncated to 256 bits, with different
+     * initial constants than SHA-256, providing better security than SHA-256.
+     * 
+     * @param data Input data to hash
+     * @return 32-byte SHA-512/256 digest
+     * @throws EncException if hashing fails
+     */
+    external fun sha512_256(data: ByteArray): ByteArray
+
+    /**
      * Computes Keccak-512 hash.
      * 
      * This is the original Keccak (pre-NIST modification).

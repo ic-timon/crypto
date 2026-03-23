@@ -40,7 +40,6 @@ extern const char *_GoStringPtr(_GoString_ s);
 
 
 
-
 #line 3 "utils.go"
  #include <stdlib.h>
 
@@ -137,6 +136,7 @@ extern char* Blake2b256(char* data, int dataLen, int* outLen);
 extern char* Md5(char* data, int dataLen, int* outLen);
 extern char* HmacSha256(char* data, int dataLen, char* key, int keyLen, int* outLen);
 extern char* HmacSha512(char* data, int dataLen, char* key, int keyLen, int* outLen);
+extern char* HmacSha1(char* data, int dataLen, char* key, int keyLen, int* outLen);
 extern char* Scrypt(char* password, int passwordLen, char* salt, int saltLen, int keyLen, int* outLen);
 extern char* Pbkdf2(char* password, int passwordLen, char* salt, int saltLen, int iterations, int keyLen, int* outLen);
 extern char* Hkdf(char* ikm, int ikmLen, char* salt, int saltLen, char* info, int infoLen, int keyLen, int* outLen);
@@ -159,6 +159,8 @@ extern char* SchnorrSign(char* message, int messageLen, char* privateKey, int pr
 extern char* SchnorrVerify(char* message, int messageLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
 extern char* SchnorrPrivateKeyToPublicKey(char* privateKey, int privateKeyLen, int* outLen);
 extern char* Sha512(char* data, int dataLen, int* outLen);
+extern char* Sha384(char* data, int dataLen, int* outLen);
+extern char* Sha512_256(char* data, int dataLen, int* outLen);
 extern char* AesCtrEncrypt(char* plaintext, int plaintextLen, char* key, int keyLen, int* outLen);
 extern char* AesCtrDecrypt(char* ciphertext, int ciphertextLen, char* key, int keyLen, int* outLen);
 extern char* ChaCha20Encrypt(char* plaintext, int plaintextLen, char* key, int keyLen, int* outLen);
