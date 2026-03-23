@@ -274,4 +274,4 @@ crypto/
 
 ## License
 
-[MIT](LICENSE) —— 随便用，但出了问题别找我。
+[MIT](LICENSE) —— 随便用，但出了问题希望你能对我亲妈留情
