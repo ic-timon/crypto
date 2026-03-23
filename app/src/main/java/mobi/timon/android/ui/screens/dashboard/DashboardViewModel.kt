@@ -64,17 +64,28 @@ data class DashboardState(
         get() = ApiTestInfo(
             nameResId = R.string.module_kdf_name,
             descriptionResId = R.string.module_kdf_desc,
-            testCount = kdfTests.size + signTests.size,
-            passedCount = kdfTests.count { it.status == TestStatus.SUCCESS } +
-                          signTests.count { it.status == TestStatus.SUCCESS },
+            testCount = kdfTests.size,
+            passedCount = kdfTests.count { it.status == TestStatus.SUCCESS },
             status = when {
-                kdfTests.isEmpty() && signTests.isEmpty() -> TestStatus.PENDING
-                kdfTests.all { it.status == TestStatus.SUCCESS } &&
+                kdfTests.isEmpty() -> TestStatus.PENDING
+                kdfTests.all { it.status == TestStatus.SUCCESS } -> TestStatus.SUCCESS
+                else -> TestStatus.FAILURE
+            }
+        )
+
+    val signApiInfo: ApiTestInfo
+        get() = ApiTestInfo(
+            nameResId = R.string.module_sign_name,
+            descriptionResId = R.string.module_sign_desc,
+            testCount = signTests.size,
+            passedCount = signTests.count { it.status == TestStatus.SUCCESS },
+            status = when {
+                signTests.isEmpty() -> TestStatus.PENDING
                 signTests.all { it.status == TestStatus.SUCCESS } -> TestStatus.SUCCESS
                 else -> TestStatus.FAILURE
             }
         )
-    
+
     val utilsApiInfo: ApiTestInfo
         get() = ApiTestInfo(
             nameResId = R.string.module_utils_name,

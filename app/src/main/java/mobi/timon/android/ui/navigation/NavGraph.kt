@@ -28,6 +28,7 @@ fun AppNavGraph(
                 onNavigateToHash = { navController.navigate(Screen.Hash.route) },
                 onNavigateToCipher = { navController.navigate(Screen.Cipher.route) },
                 onNavigateToKdf = { navController.navigate(Screen.Kdf.route) },
+                onNavigateToSign = { navController.navigate(Screen.Sign.route) },
                 onNavigateToUtils = { navController.navigate(Screen.Utils.route) }
             )
         }
@@ -43,7 +44,11 @@ fun AppNavGraph(
         composable(Screen.Kdf.route) {
             KdfScreen()
         }
-        
+
+        composable(Screen.Sign.route) {
+            SignScreen()
+        }
+
         composable(Screen.Utils.route) {
             UtilsScreen()
         }

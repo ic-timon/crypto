@@ -37,6 +37,7 @@ fun DashboardScreen(
     onNavigateToHash: () -> Unit,
     onNavigateToCipher: () -> Unit,
     onNavigateToKdf: () -> Unit,
+    onNavigateToSign: () -> Unit,
     onNavigateToUtils: () -> Unit,
     viewModel: DashboardViewModel = viewModel()
 ) {
@@ -168,7 +169,14 @@ fun DashboardScreen(
                     onClick = onNavigateToKdf
                 )
             }
-            
+
+            item {
+                ApiCard(
+                    info = state.signApiInfo,
+                    onClick = onNavigateToSign
+                )
+            }
+
             item {
                 ApiCard(
                     info = state.utilsApiInfo,

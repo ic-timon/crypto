@@ -37,7 +37,13 @@ sealed class Screen(
         titleResId = R.string.nav_kdf,
         icon = Icons.Default.Key
     )
-    
+
+    data object Sign : Screen(
+        route = "sign",
+        titleResId = R.string.nav_sign,
+        icon = Icons.Default.EnhancedEncryption
+    )
+
     data object Utils : Screen(
         route = "utils",
         titleResId = R.string.nav_utils,

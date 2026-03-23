@@ -5,7 +5,8 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_hash">Hash</string>
     <string name="nav_cipher">Cipher</string>
-    <string name="nav_kdf">KDF/Sign</string>
+    <string name="nav_kdf">KDF</string>
+    <string name="nav_sign">Sign</string>
     <string name="nav_utils">Utils</string>
 
     <!-- Dashboard -->
@@ -109,8 +110,10 @@
     <string name="module_hash_desc">SHA-1, SHA-256, SHA-512, BLAKE2b, MD5, HMAC</string>
     <string name="module_cipher_name">Cipher</string>
     <string name="module_cipher_desc">AES-GCM, ChaCha20-Poly1305, AES-CBC, DES, AES-CTR, XTS</string>
-    <string name="module_kdf_name">KDF/Sign</string>
-    <string name="module_kdf_desc">Bcrypt, Argon2id, Scrypt, PBKDF2, HKDF, Ed25519, ECDSA, RSA</string>
+    <string name="module_kdf_name">KDF</string>
+    <string name="module_kdf_desc">Bcrypt, Argon2id, Scrypt, PBKDF2, HKDF</string>
+    <string name="module_sign_name">Sign</string>
+    <string name="module_sign_desc">Ed25519, ECDSA, secp256k1 Schnorr, BLS12-381, RSA</string>
     <string name="module_utils_name">Utils</string>
     <string name="module_utils_desc">Random, Hex Codec, Base64 Codec</string>
 </resources>
