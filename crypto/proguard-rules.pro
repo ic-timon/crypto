@@ -1,9 +1,20 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ProGuard rules for mobi.timon.crypto
+
+# Keep JNI native methods - these are referenced by native .so libraries
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep all public native methods in crypto package
+-keep class mobi.timon.crypto.** {
+    *;
+}
+
+# Keep Kotlin external functions (these reference native methods)
+-keep class kotlin.jvm.**
+-keepclassmembers class * {
+    @kotlin.jvm.* <fields>;
+}
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface

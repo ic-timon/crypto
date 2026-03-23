@@ -54,7 +54,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -160,6 +160,7 @@ fun compileGoForAbi(abi: String, ndkPath: File) {
     env["CC"] = clangPath.absolutePath
     env["CXX"] = clangPath.absolutePath.replace("-clang", "-clang++")
     env["CGO_CFLAGS"] = "-Os"
+    env["GODEBUG"] = "gctrace=0"
 
     if (abi == "armeabi-v7a") {
         env["GOARM"] = "7"
