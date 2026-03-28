@@ -50,7 +50,7 @@ repositories {
 ### 2. Add the dependency
 
 ```kotlin
-implementation("io.github.ic-timon.crypto:crypto:1.3.0")
+implementation("io.github.ic-timon.crypto:crypto:1.3.1")
 ```
 
 ### 3. Authentication

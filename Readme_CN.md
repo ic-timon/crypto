@@ -50,7 +50,7 @@ repositories {
 ### 2. 添加依赖
 
 ```kotlin
-implementation("io.github.ic-timon.crypto:crypto:1.3.0")
+implementation("io.github.ic-timon.crypto:crypto:1.3.1")
 ```
 
 ### 3. 认证配置

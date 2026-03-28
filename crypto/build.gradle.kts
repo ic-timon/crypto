@@ -159,7 +159,16 @@ fun compileGoForAbi(abi: String, ndkPath: File) {
     env["GOARCH"] = goArch
     env["CC"] = clangPath.absolutePath
     env["CXX"] = clangPath.absolutePath.replace("-clang", "-clang++")
-    env["CGO_CFLAGS"] = "-Os"
+
+    val cflags = when (abi) {
+        "arm64-v8a" -> "-O3 -march=armv8-a+crypto+simd -mtune=cortex-a76"
+        "armeabi-v7a" -> "-O3 -mfpu=neon-vfpv4 -mfloat-abi=softfp -mtune=cortex-a53"
+        "x86" -> "-O3 -msse4.2 -mfpmath=sse"
+        "x86_64" -> "-O3 -msse4.2 -mavx -mavx2 -mfpmath=sse"
+        else -> "-O3"
+    }
+    env["CGO_CFLAGS"] = cflags
+    env["CGO_CXXFLAGS"] = cflags
     env["GODEBUG"] = "gctrace=0"
 
     if (abi == "armeabi-v7a") {
@@ -168,12 +177,16 @@ fun compileGoForAbi(abi: String, ndkPath: File) {
 
     val outputFile = File(outputDir, "libencgo.so")
 
-    val pb = ProcessBuilder(listOf(
+    val buildArgs = mutableListOf(
         "go", "build",
         "-buildmode=c-shared",
+        "-ldflags", "-s -w",
+        "-trimpath",
         "-o", outputFile.absolutePath,
         "."
-    ))
+    )
+
+    val pb = ProcessBuilder(buildArgs)
     pb.directory(goDir)
     pb.environment().putAll(env)
     pb.redirectErrorStream(true)
@@ -244,7 +257,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation("androidx.multidex:multidex:2.0.1")
+    androidTestImplementation(libs.androidx.multidex)
 }
 
 fun getVersionFromGitTag(): String {
@@ -297,9 +310,9 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/ic-timon/crypto")
             credentials {
-                username = project.findProperty("gpr.user") as String? 
+                username = project.findProperty("gpr.user") as String?
                     ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.token") as String? 
+                password = project.findProperty("gpr.token") as String?
                     ?: System.getenv("GITHUB_TOKEN")
             }
         }
