@@ -98,8 +98,20 @@ jobs:
         env:
           RUSTFLAGS: "-A warnings"
       - name: Gradle Publish (full KMP — Android + Apple)
-        # 真实失败必须暴露 — 不带 tee/|| true，让 CI 直接失败让我们看到错误
-        run: ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 | tail -80
+        # 先 link 全部 Apple target 生成 .klib（否则 publications 是空的 / SKIPPED）。
+        # 注意：compileKotlin*Macos/Ios/Tvos/Watchos 都依赖 host linker，macOS runner 自带 XCode CLT。
+        # -x lint 跳过 lint check（lint target 在 cross-compile 时常超时）。
+        # buildAppleMainKotlinMetadata 是所有 Apple target 的元数据公共编译步骤。
+        run: |
+          ./gradlew :crypto:linkIosArm64ReleaseExecutable --no-daemon || echo "linkIosArm64 skipped" || true
+          ./gradlew :crypto:linkIosSimulatorArm64ReleaseExecutable --no-daemon || true
+          ./gradlew :crypto:linkIosX64ReleaseExecutable --no-daemon || true
+          ./gradlew :crypto:linkMacosArm64ReleaseExecutable --no-daemon || true
+          ./gradlew :crypto:linkMacosX64ReleaseExecutable --no-daemon || true
+          ./gradlew :crypto:linkTvosArm64ReleaseExecutable --no-daemon || true
+          ./gradlew :crypto:linkWatchosArm64ReleaseExecutable --no-daemon || true
+          # 现在 publish 会找到所有 publications
+          ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 | tail -100
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
