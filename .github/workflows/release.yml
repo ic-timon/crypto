@@ -71,11 +71,19 @@ jobs:
 
       - name: Find AAR
         id: aar
-        run: echo "AAR_PATH=$(find crypto/build/outputs/aar -name '*.aar' | head -1)" >> $GITHUB_OUTPUT
+        run: |
+          AAR=$(find crypto/build/outputs/aar -name 'crypto-release.aar' | head -1)
+          [ -z "$AAR" ] && AAR=$(find crypto/build/outputs/aar -name '*.aar' | head -1)
+          echo "AAR_PATH=$AAR" >> $GITHUB_OUTPUT
+          ls -la "$AAR" || { echo "::warning::AAR not found"; }
+          DEBUG=$(find crypto/build/outputs/aar -name 'crypto-debug.aar' | head -1)
+          [ -n "$DEBUG" ] && echo "DEBUG_PATH=$DEBUG" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           name: Release v${{ steps.version.outputs.version }}
           generate_release_notes: true
-          files: ${{ steps.aar.outputs.aar_path }}
+          files: |
+            ${{ steps.aar.outputs.aar_path }}
+            ${{ steps.aar.outputs.debug_path }}
