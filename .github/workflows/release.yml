@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     permissions:
       contents: write
       packages: write
@@ -27,7 +27,7 @@ jobs:
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios,aarch64-apple-darwin,x86_64-apple-darwin,aarch64-apple-tvos,arm64_32-apple-watchos
 
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
@@ -57,10 +57,9 @@ jobs:
           RUSTFLAGS: "-A warnings"
           RUST_BACKTRACE: "1"
 
-      - name: Publish to GitHub Packages
-        # 直接调 Android variant 的 publish task（AGP 9 在 KMP 工程下默认创建）。
-        # K/N metadata 在 v2.0.0 不发布（MacOS toolchain 限制，v2.0.x patch 补）。
-        run: ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon
+      - name: Publish to GitHub Packages (full KMP — Android + Apple)
+        # 触发全部 8 个 KMP publications（Android AAR + 7 Apple targets 的 .klib）。
+        run: ./gradlew :crypto:publish --no-daemon
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
