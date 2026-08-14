@@ -33,12 +33,18 @@ jobs:
         run: cargo install cargo-ndk
 
       - name: Install Rust cross-compile targets
-        # Android 4 ABIs + Apple 4 targets + tvOS + watchOS
+        # Android 4 ABIs + Apple 4 targets + tvOS/watchOS (best effort)
         run: |
+          set +e  # some targets may not be available on all toolchains
           rustup target add \
             aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android \
-            aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin aarch64-apple-darwin \
-            aarch64-apple-tvos arm64_32-apple-watchos
+            aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin aarch64-apple-darwin
+          # tvOS/watchOS targets may not exist; ignore errors (will skip in build)
+          rustup target add aarch64-apple-tvos || echo "skip aarch64-apple-tvos"
+          rustup target add arm64_32-apple-watchos || echo "skip arm64_32-apple-watchos"
+          rustup target add x86_64-apple-tvos || echo "skip x86_64-apple-tvos"
+          rustup target add x86_64-apple-watchos || echo "skip x86_64-apple-watchos"
+          true
 
       - uses: android-actions/setup-android@v3
 
