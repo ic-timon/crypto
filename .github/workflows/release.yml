@@ -82,11 +82,21 @@ jobs:
         env:
           RUSTFLAGS: "-A warnings"
       - name: Gradle Publish (full KMP — Android + 4 Apple)
-        # 一次性 publish 全部 6 publications（Android AAR + 4 Apple K/N .klib + kotlin-multiplatform .module）
-        run: ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace
+        # 捕获 stderr 到 artifact，看真实错误
+        run: |
+          set +e
+          ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace --info 2>&1 | tee /tmp/gradle.log
+          echo "exit=$?"
+          cp /tmp/gradle.log /tmp/gradle.log
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload gradle log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-publish-log
+          path: /tmp/gradle.log
 
       - name: Get version from tag
         id: version
