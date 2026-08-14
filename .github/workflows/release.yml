@@ -81,22 +81,16 @@ jobs:
           done
         env:
           RUSTFLAGS: "-A warnings"
-      - name: Gradle Publish (full KMP — Android + 4 Apple)
-        # 捕获 stderr 到 artifact，看真实错误
-        run: |
-          set +e
-          ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace --info 2>&1 | tee /tmp/gradle.log
-          echo "exit=$?"
-          cp /tmp/gradle.log /tmp/gradle.log
+      - name: Gradle Publish (Android AAR only)
+        # v2.1.0 发布 Android AAR 到 GitHub Packages。Apple K/N .klib MavenPublication
+        # 上传到 GitHub Packages 在 KMP + AGP 9 + macOS runner 上有路径问题（artifact 已生成但
+        # publication 注册的 from(components[]) 链路有 gradle 内部错位）。
+        # 本地 ./gradlew publishToMavenLocal 验证 8 个 publications 全部注册成功；
+        # 下游 release.yml 切换到 publishAllPublications 已在 v2.1.x patch 路线中。
+        run: ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload gradle log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-publish-log
-          path: /tmp/gradle.log
 
       - name: Get version from tag
         id: version
