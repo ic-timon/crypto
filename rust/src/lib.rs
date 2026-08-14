@@ -13,4 +13,7 @@ pub mod stream;
 pub mod kdf;
 pub mod ed25519;
 pub mod rsa;
+pub mod xts;
+pub mod ecdsa;
+pub mod bls;
 mod utils;
