@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 // Android: JNI → libencrust.so（cargo-ndk 构建 4 ABI）
 // Apple: cinterop → libencrust.a（cargo 构建各 Apple target）
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
     `maven-publish`
 }
 
@@ -119,67 +119,29 @@ android {
     sourceSets["main"].jniLibs.srcDirs("src/androidMain/jniLibs")
 }
 
-// ── Rust build tasks ──────────────────────────────────────────
+// ── Rust build tasks（:argon2 同款 Exec + shell 脚本模式，config-cache 安全）──
+// bash -l 加载登录 shell → ~/.cargo/bin 进 PATH。
 
-fun runCargo(dir: File, ndkHome: String?, args: List<String>) {
-    val pb = ProcessBuilder(listOf("cargo") + args)
-        .directory(dir)
-        .inheritIO()
-    if (ndkHome != null) pb.environment()["ANDROID_NDK_HOME"] = ndkHome
-    pb.environment()["IPHONEOS_DEPLOYMENT_TARGET"] = "13.0"
-    // release profile 默认有 -D warnings；CI 严格模式下会触发 warnings-as-errors。
-    // 关掉该 deny 防止 cargo-ndk 编出的 warning（如 jni bridge 内部）误报。
-    pb.environment()["RUSTFLAGS"] = System.getenv("RUSTFLAGS") ?: "-A warnings"
-    val rc = pb.start().waitFor()
-    if (rc != 0) throw GradleException("cargo ${args.joinToString(" ")} failed with exit code $rc")
+// Android: cargo-ndk 编 4 ABI → jniLibs
+val buildRustAndroid by tasks.registering(Exec::class) {
+    group = "build"
+    workingDir = projectDir
+    commandLine("bash", "-l", "build-android.sh")
 }
 
-
-
-val rustDir = file("../rust")
-val ndkHome = System.getenv("ANDROID_NDK_HOME")
-    ?: file("${System.getProperty("user.home")}/Library/Android/sdk/ndk").takeIf { it.exists() }
-        ?.listFiles()?.maxOrNull()?.toString()
-
-// Android: cargo-ndk build for 4 ABIs → libencrust.so
-val buildRustAndroid by tasks.registering {
+// Apple: cargo build 4 target → libencrust.a（cinterop 静态链）
+val buildRustApple by tasks.registering(Exec::class) {
     group = "build"
-    val abis = mapOf(
-        "arm64-v8a" to "aarch64-linux-android",
-        "armeabi-v7a" to "armv7-linux-androideabi",
-        "x86" to "i686-linux-android",
-        "x86_64" to "x86_64-linux-android",
-    )
-    doLast {
-        println("[buildRustAndroid] ndkHome=${ndkHome ?: "<unset>"}")
-        abis.forEach { (abi, target) ->
-            val outDir = file("src/androidMain/jniLibs/$abi")
-            outDir.mkdirs()
-            runCargo(rustDir, ndkHome, listOf("ndk", "-t", target, "-P", "33", "build", "--release", "--features", "jni-bridge"))
-            project.copy {
-                from(rustDir.resolve("target/$target/release/libencrust.so"))
-                into(outDir)
-            }
-        }
-    }
+    workingDir = projectDir
+    commandLine("bash", "-l", "build-apple.sh")
 }
 
-// Apple: cargo build for each Apple target → libencrust.a
-val buildRustApple by tasks.registering {
+// Host（JVM 单测用）：cargo build 本机 target → libencrust.dylib/.so（带 jni-bridge 符号）
+// 供 :shared/:nostr 的 testDebugUnitTest 在 JVM 上 System.loadLibrary("encrust")。
+val buildRustHost by tasks.registering(Exec::class) {
     group = "build"
-    val targets = listOf(
-        "aarch64-apple-ios",
-        "aarch64-apple-ios-sim",
-        "aarch64-apple-darwin",
-        "x86_64-apple-darwin",
-        // tvos/watchOS omitted — Rust stable doesn't support them
-
-    )
-    doLast {
-        targets.forEach { target ->
-            runCargo(rustDir, null, listOf("build", "--release", "--target", target))
-        }
-    }
+    workingDir = projectDir
+    commandLine("bash", "-l", "build-host.sh")
 }
 
 // Ensure native libs are built before Android assemble
@@ -230,8 +192,10 @@ tasks.register("printSourceSets") {
 }
 
 dependencies {
-    "androidTestImplementation"(libs.junit)
-    "androidTestImplementation"(libs.androidx.junit)
-    "androidTestImplementation"(libs.androidx.runner.alias)
-    "androidTestImplementation"(libs.kotlin.testJunit)
+    // 字符串坐标（不依赖 version catalog）——本模块被 CalmClient include 时用的是宿主 catalog，
+    // 宿主与 crypto 仓各自的 catalog 条目名不一致；字符串坐标两边都能构建。
+    "androidTestImplementation"("junit:junit:4.13.2")
+    "androidTestImplementation"("androidx.test.ext:junit:1.3.0")
+    "androidTestImplementation"("androidx.test:runner:1.6.2")
+    "androidTestImplementation"(kotlin("test-junit"))
 }
