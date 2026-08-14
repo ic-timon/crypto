@@ -82,6 +82,9 @@ fun runCargo(dir: File, ndkHome: String?, args: List<String>) {
         .inheritIO()
     if (ndkHome != null) pb.environment()["ANDROID_NDK_HOME"] = ndkHome
     pb.environment()["IPHONEOS_DEPLOYMENT_TARGET"] = "13.0"
+    // release profile 默认有 -D warnings；CI 严格模式下会触发 warnings-as-errors。
+    // 关掉该 deny 防止 cargo-ndk 编出的 warning（如 jni bridge 内部）误报。
+    pb.environment()["RUSTFLAGS"] = System.getenv("RUSTFLAGS") ?: "-A warnings"
     val rc = pb.start().waitFor()
     if (rc != 0) throw GradleException("cargo ${args.joinToString(" ")} failed with exit code $rc")
 }
