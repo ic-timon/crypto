@@ -985,6 +985,47 @@ Java_mobi_timon_crypto_Secp256k1_schnorrPrivateKeyToPublicKey(JNIEnv *env, jobje
     return processResult(env, result, outLen);
 }
 
+
+JNIEXPORT jbyteArray JNICALL
+Java_mobi_timon_crypto_Secp256k1_schnorrSignHash(JNIEnv *env, jobject obj, jbyteArray hash, jbyteArray privateKey) {
+    if (hash == NULL || privateKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "schnorrSignHash: input is null");
+        return NULL;
+    }
+    jsize hashLen = (*env)->GetArrayLength(env, hash);
+    jsize privateKeyLen = (*env)->GetArrayLength(env, privateKey);
+    jbyte *hashPtr = (*env)->GetByteArrayElements(env, hash, NULL);
+    jbyte *privateKeyPtr = (*env)->GetByteArrayElements(env, privateKey, NULL);
+    int outLen = 0;
+    char *result = SchnorrSignHash((char *)hashPtr, hashLen, (char *)privateKeyPtr, privateKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, hash, hashPtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, privateKey, privateKeyPtr, JNI_ABORT);
+    return processResult(env, result, outLen);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_mobi_timon_crypto_Secp256k1_schnorrVerifyHash(JNIEnv *env, jobject obj, jbyteArray hash, jbyteArray signature, jbyteArray publicKey) {
+    if (hash == NULL || signature == NULL || publicKey == NULL) {
+        jclass excClass = (*env)->FindClass(env, "mobi/timon/crypto/EncException");
+        (*env)->ThrowNew(env, excClass, "schnorrVerifyHash: input is null");
+        return JNI_FALSE;
+    }
+    jsize hashLen = (*env)->GetArrayLength(env, hash);
+    jsize signatureLen = (*env)->GetArrayLength(env, signature);
+    jsize publicKeyLen = (*env)->GetArrayLength(env, publicKey);
+    jbyte *hashPtr = (*env)->GetByteArrayElements(env, hash, NULL);
+    jbyte *signaturePtr = (*env)->GetByteArrayElements(env, signature, NULL);
+    jbyte *publicKeyPtr = (*env)->GetByteArrayElements(env, publicKey, NULL);
+    int outLen = 0;
+    char *result = SchnorrVerifyHash((char *)hashPtr, hashLen, (char *)signaturePtr, signatureLen,
+                                     (char *)publicKeyPtr, publicKeyLen, &outLen);
+    (*env)->ReleaseByteArrayElements(env, hash, hashPtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, signature, signaturePtr, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, publicKey, publicKeyPtr, JNI_ABORT);
+    return verifyBoolResult(env, result, outLen);
+}
+
 // === BLS ===
 JNIEXPORT jbyteArray JNICALL
 Java_mobi_timon_crypto_Bls_generateKey(JNIEnv *env, jobject obj) {

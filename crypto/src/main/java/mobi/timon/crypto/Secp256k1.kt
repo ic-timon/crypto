@@ -98,4 +98,8 @@ object Secp256k1 {
      * @throws EncException if derivation fails
      */
     external fun schnorrPrivateKeyToPublicKey(privateKey: ByteArray): ByteArray
+
+    // Nostr: 直接对 32 字节 hash 签/验（不再 pre-SHA256），供事件 id 签名用。
+    external fun schnorrSignHash(hash: ByteArray, privateKey: ByteArray): ByteArray
+    external fun schnorrVerifyHash(hash: ByteArray, signature: ByteArray, publicKey: ByteArray): Boolean
 }

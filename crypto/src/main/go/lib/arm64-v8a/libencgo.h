@@ -158,6 +158,8 @@ extern char* Secp256k1RecoverPublicKey(char* message, int messageLen, char* sign
 extern char* SchnorrSign(char* message, int messageLen, char* privateKey, int privateKeyLen, int* outLen);
 extern char* SchnorrVerify(char* message, int messageLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
 extern char* SchnorrPrivateKeyToPublicKey(char* privateKey, int privateKeyLen, int* outLen);
+extern char* SchnorrSignHash(char* hash, int hashLen, char* privateKey, int privateKeyLen, int* outLen);
+extern char* SchnorrVerifyHash(char* hash, int hashLen, char* signature, int signatureLen, char* publicKey, int publicKeyLen, int* outLen);
 extern char* Sha512(char* data, int dataLen, int* outLen);
 extern char* Sha384(char* data, int dataLen, int* outLen);
 extern char* Sha512_256(char* data, int dataLen, int* outLen);

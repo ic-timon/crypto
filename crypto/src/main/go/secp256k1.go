@@ -296,3 +296,71 @@ func SchnorrPrivateKeyToPublicKey(privateKey *C.char, privateKeyLen C.int, outLe
 
 	return (*C.char)(result)
 }
+
+// SchnorrSignHash 对 32 字节 hash 直接做 BIP-340 Schnorr 签名（不再 pre-hash）。
+// Nostr 事件签名用：传入 event id（已是 SHA256），私钥 32 字节；出 64 字节签名。
+//export SchnorrSignHash
+func SchnorrSignHash(hash *C.char, hashLen C.int, privateKey *C.char, privateKeyLen C.int, outLen *C.int) *C.char {
+	if hash == nil || hashLen != 32 || privateKey == nil || privateKeyLen != 32 {
+		*outLen = 0
+		return nil
+	}
+	hashBytes := C.GoBytes(unsafe.Pointer(hash), hashLen)
+	privKeyBytes := C.GoBytes(unsafe.Pointer(privateKey), privateKeyLen)
+	privKey, _ := btcec.PrivKeyFromBytes(privKeyBytes)
+	var hashArr [32]byte
+	copy(hashArr[:], hashBytes)
+	signature, err := schnorr.Sign(privKey, hashArr[:])
+	if err != nil {
+		*outLen = 0
+		return nil
+	}
+	sigBytes := signature.Serialize()
+	*outLen = C.int(len(sigBytes))
+	result := C.malloc(C.size_t(len(sigBytes)))
+	if result == nil {
+		*outLen = 0
+		return nil
+	}
+	for i, b := range sigBytes {
+		*(*byte)(unsafe.Pointer(uintptr(result) + uintptr(i))) = b
+	}
+	return (*C.char)(result)
+}
+
+// SchnorrVerifyHash 对 32 字节 hash 直接验签（不再 pre-hash）。出 1 字节 0/1。
+//export SchnorrVerifyHash
+func SchnorrVerifyHash(hash *C.char, hashLen C.int, signature *C.char, signatureLen C.int, publicKey *C.char, publicKeyLen C.int, outLen *C.int) *C.char {
+	if hash == nil || hashLen != 32 || signature == nil || signatureLen != 64 || publicKey == nil || publicKeyLen != 32 {
+		*outLen = 0
+		return nil
+	}
+	hashBytes := C.GoBytes(unsafe.Pointer(hash), hashLen)
+	signatureBytes := C.GoBytes(unsafe.Pointer(signature), signatureLen)
+	publicKeyBytes := C.GoBytes(unsafe.Pointer(publicKey), publicKeyLen)
+	pubKey, err := schnorr.ParsePubKey(publicKeyBytes)
+	if err != nil {
+		*outLen = 0
+		return nil
+	}
+	sig, err := schnorr.ParseSignature(signatureBytes)
+	if err != nil {
+		*outLen = 0
+		return nil
+	}
+	var hashArr [32]byte
+	copy(hashArr[:], hashBytes)
+	valid := sig.Verify(hashArr[:], pubKey)
+	outPtr := C.malloc(1)
+	if outPtr == nil {
+		*outLen = 0
+		return nil
+	}
+	if valid {
+		*(*byte)(outPtr) = 1
+	} else {
+		*(*byte)(outPtr) = 0
+	}
+	*outLen = 1
+	return (*C.char)(outPtr)
+}
