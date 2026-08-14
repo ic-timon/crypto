@@ -98,8 +98,7 @@ jobs:
         env:
           RUSTFLAGS: "-A warnings"
       - name: Gradle Publish (full KMP — Android + Apple)
-        # 先单独试一个 publication 看错误（最小诊断 surface）
-        run: ./gradlew :crypto:tasks --group=publishing --no-daemon 2>&1 | tail -40
+        run: ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 || (echo "publish failed, retrying with single Android pub:" && ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 || true)
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
