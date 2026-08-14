@@ -53,13 +53,13 @@ jobs:
 
       - name: Build Rust (Android ABIs)
         # cargo-ndk 编 4 个 Android ABI 的 libencrust.so → src/androidMain/jniLibs/
-        # 绕开 Gradle 的 buildRustApple（macOS 上 cargo build --target aarch64-apple-ios 失败）
+        # ANDROID_NDK_HOME 由 "Install NDK" step 写入 GITHUB_ENV，这里自动可见
         run: |
           cd rust
-          export ANDROID_NDK_HOME=$ANDROID_NDK_HOME
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
           for abi in arm64-v8a armeabi-v7a x86 x86_64; do
             echo "=== cargo ndk $abi ==="
-            cargo ndk -t $abi -P 33 build --release --features jni-bridge 2>&1 | tail -20
+            cargo ndk -t $abi -P 33 build --release --features jni-bridge 2>&1 | tail -25
           done
           # 复制 .so 到 jniLibs（buildRustAndroid Gradle task 会做，但绕开后要手动）
           for abi in arm64-v8a armeabi-v7a x86 x86_64; do
