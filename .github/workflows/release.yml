@@ -82,12 +82,22 @@ jobs:
         env:
           RUSTFLAGS: "-A warnings"
       - name: Gradle Publish (Android AAR only)
-        # v2.1.0 只发布 Android AAR。Apple K/N targets 的 .klib publish 在 v2.1.x patch 补
-        # （需要先解决 KMP MavenPublication 在 macOS runner 上的注册时机问题）。
-        run: ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace
+        # 把 stdout+stderr 都捕获到 artifact，便于诊断真实错误
+        run: |
+          ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 | tee /tmp/gradle-publish.log
+          STATUS=$?
+          echo "exit=$STATUS"
+          cp /tmp/gradle-publish.log /tmp/gradle-publish-final.log
+          exit $STATUS
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload gradle publish log (debug)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-publish-log-v2.1.0
+          path: /tmp/gradle-publish-final.log
 
       - name: Get version from tag
         id: version
