@@ -82,14 +82,18 @@ jobs:
         env:
           RUSTFLAGS: "-A warnings"
       - name: Test GitHub Packages Maven auth
-        # 先确认 GITHUB_TOKEN 能访问 GitHub Packages Maven（最常见问题：token 没 `packages: write` scope）
         run: |
-          echo "actor=$GITHUB_ACTOR"
-          echo "token len=${#GITHUB_TOKEN}"
-          curl -s -o /dev/null -w "%{http_code}
-" \
-            -u "$GITHUB_ACTOR:$GITHUB_TOKEN" \
-            "https://maven.pkg.github.com/ic-timon/crypto/mobi/timon/crypto/crypto-android/maven-metadata.xml"
+          echo "token length: ${#GITHUB_TOKEN}"
+          status=$(curl -s -o /tmp/maven-meta.xml -w "%{http_code}" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            "https://maven.pkg.github.com/ic-timon/crypto/mobi/timon/crypto/crypto-android/maven-metadata.xml")
+          echo "maven.pkg.github.com crypto-android/maven-metadata.xml status=$status"
+          head -3 /tmp/maven-meta.xml
+      - name: Gradle Publish (Android AAR)
+        run: ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 | tail -30
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version from tag
         id: version
