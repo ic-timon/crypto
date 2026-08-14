@@ -32,6 +32,14 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
 
+      - name: Install Rust cross-compile targets
+        # Android 4 ABIs + Apple 4 targets + tvOS + watchOS
+        run: |
+          rustup target add \
+            aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android \
+            aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin aarch64-apple-darwin \
+            aarch64-apple-tvos arm64_32-apple-watchos
+
       - uses: android-actions/setup-android@v3
 
       - name: Accept SDK licenses
