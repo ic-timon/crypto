@@ -103,6 +103,7 @@ val buildRustAndroid by tasks.registering {
         "x86_64" to "x86_64-linux-android",
     )
     doLast {
+        println("[buildRustAndroid] ndkHome=${ndkHome ?: "<unset>"}")
         abis.forEach { (abi, target) ->
             val outDir = file("src/androidMain/jniLibs/$abi")
             outDir.mkdirs()
