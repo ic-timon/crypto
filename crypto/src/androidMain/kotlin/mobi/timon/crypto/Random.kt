@@ -1,5 +1,8 @@
 package mobi.timon.crypto
-actual object Random {
+
+internal actual fun platformRandomBytes(length: Int): ByteArray = RandomJni.bytes(length)
+
+internal object RandomJni {
     init { Enc }
-    actual external fun bytes(length: Int): ByteArray
+    external fun bytes(length: Int): ByteArray
 }

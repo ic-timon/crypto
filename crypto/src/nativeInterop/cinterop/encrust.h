@@ -59,10 +59,34 @@
  */
  uint8_t *SchnorrVerifyHash(const uint8_t *hash, int hash_len, const uint8_t *signature, int signature_len, const uint8_t *public_key, int public_key_len, int *out_len) ;
 
+ uint8_t *Sha1(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Sha256(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Sha384(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Sha512(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Blake2b256(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Md5(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Ripemd160(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Keccak256(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *Keccak512(const uint8_t *data, int data_len, int *out_len) ;
+
 /**
  * SHA-512/256（SHA-512 with different IV，截断 256 位）。
  */
  uint8_t *Sha512_256(const uint8_t *data, int data_len, int *out_len) ;
+
+ uint8_t *HmacSha256(const uint8_t *data, int data_len, const uint8_t *key, int key_len, int *out_len) ;
+
+ uint8_t *HmacSha512(const uint8_t *data, int data_len, const uint8_t *key, int key_len, int *out_len) ;
+
+ uint8_t *HmacSha1(const uint8_t *data, int data_len, const uint8_t *key, int key_len, int *out_len) ;
 
  uint8_t *RandomBytes(int length, int *out_len) ;
 

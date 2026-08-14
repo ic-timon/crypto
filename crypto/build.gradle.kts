@@ -5,12 +5,14 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 // Android: JNI → libencrust.so（cargo-ndk 构建 4 ABI）
 // Apple: cinterop → libencrust.a（cargo 构建各 Apple target）
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.library)
     `maven-publish`
 }
 
 kotlin {
+    applyDefaultHierarchyTemplate()
+
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
@@ -32,6 +34,7 @@ kotlin {
     fun KotlinNativeTarget.cryptoCInterop() {
         compilations["main"].cinterops {
             val cryptoNative by creating {
+                includeDirs.headerFilterOnly(project.file("src/nativeInterop/cinterop"))
                 tasks[interopProcessingTaskName].dependsOn("buildRustApple")
             }
         }
@@ -73,7 +76,20 @@ android {
 
 // ── Rust build tasks ──────────────────────────────────────────
 
+fun runCargo(dir: File, ndkHome: String?, args: List<String>) {
+    val pb = ProcessBuilder(listOf("cargo") + args)
+        .directory(dir)
+        .inheritIO()
+    if (ndkHome != null) pb.environment()["ANDROID_NDK_HOME"] = ndkHome
+    pb.environment()["IPHONEOS_DEPLOYMENT_TARGET"] = "13.0"
+    val rc = pb.start().waitFor()
+    if (rc != 0) throw GradleException("cargo ${args.joinToString(" ")} failed with exit code $rc")
+}
+
+
+
 val rustDir = file("../rust")
+val ndkHome = System.getenv("ANDROID_NDK_HOME") ?: "${System.getProperty("user.home")}/Library/Android/sdk/ndk/27.0.12077973"
 
 // Android: cargo-ndk build for 4 ABIs → libencrust.so
 val buildRustAndroid by tasks.registering {
@@ -88,11 +104,8 @@ val buildRustAndroid by tasks.registering {
         abis.forEach { (abi, target) ->
             val outDir = file("src/androidMain/jniLibs/$abi")
             outDir.mkdirs()
-            exec {
-                workingDir = rustDir
-                commandLine("cargo", "ndk", "-t", target, "build", "--release")
-            }
-            copy {
+            runCargo(rustDir, ndkHome, listOf("ndk", "-t", target, "-P", "33", "build", "--release", "--features", "jni-bridge"))
+            project.copy {
                 from(rustDir.resolve("target/$target/release/libencrust.so"))
                 into(outDir)
             }
@@ -106,18 +119,11 @@ val buildRustApple by tasks.registering {
     val targets = listOf(
         "aarch64-apple-ios",
         "aarch64-apple-ios-sim",
-        "x86_64-apple-ios",
-        "aarch64-apple-darwin",
         "x86_64-apple-darwin",
-        "aarch64-apple-tvos",
-        "arm64_32-apple-watchos",
     )
     doLast {
         targets.forEach { target ->
-            exec {
-                workingDir = rustDir
-                commandLine("cargo", "build", "--release", "--target", target)
-            }
+            runCargo(rustDir, null, listOf("build", "--release", "--target", target))
         }
     }
 }
@@ -136,6 +142,15 @@ publishing {
                 username = providers.gradleProperty("gpr.user").orNull ?: System.getenv("GITHUB_ACTOR")
                 password = providers.gradleProperty("gpr.token").orNull ?: System.getenv("GITHUB_TOKEN")
             }
+        }
+    }
+}
+
+// 诊断：打印 source sets
+tasks.register("printSourceSets") {
+    doLast {
+        kotlin.sourceSets.forEach { ss ->
+            println("SS: ${ss.name} -> ${ss.kotlin.srcDirs}")
         }
     }
 }
