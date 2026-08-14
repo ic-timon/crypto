@@ -59,7 +59,7 @@ jobs:
 
       - name: Publish to GitHub Packages (full KMP — Android + Apple)
         # 触发全部 8 个 KMP publications（Android AAR + 7 Apple targets 的 .klib）。
-        run: ./gradlew :crypto:publish --no-daemon
+        run: ./gradlew :crypto:publish --no-daemon --stacktrace 2>&1 | tail -150
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
