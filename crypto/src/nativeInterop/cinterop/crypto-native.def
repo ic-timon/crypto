@@ -1,0 +1,10 @@
+package = mobi.timon.crypto.native
+
+headers = encrust.h
+headerFilter = encrust.h
+
+# Per-target static lib（由 buildRustApple task 构建）
+staticLibraries = libencrust.a
+# 路径相对于 crypto/crypto/ 模块目录
+# TODO: 改为相对路径或环境变量（:argon2 也有同样的绝对路径问题）
+libraryPaths = ../../rust/target/aarch64-apple-ios/release
