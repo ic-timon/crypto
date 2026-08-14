@@ -89,6 +89,9 @@ jobs:
             "https://maven.pkg.github.com/ic-timon/crypto/mobi/timon/crypto/crypto-android/maven-metadata.xml")
           echo "maven.pkg.github.com crypto-android/maven-metadata.xml status=$status"
           head -3 /tmp/maven-meta.xml
+      - name: Gradle Build Release AAR
+        # 显式 assemble release — publish task 依赖 AAR 生成
+        run: ./gradlew :crypto:assembleRelease --no-daemon --stacktrace 2>&1 | tail -20
       - name: Gradle Publish (Android AAR)
         run: ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 | tail -30
         env:
