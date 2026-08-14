@@ -42,7 +42,7 @@ rand = "0.8"
 rand_core = "0.6"
 getrandom = "0.2"
 libc = "0.2"
-jni = { version = "0.21", features = ["invocation"], optional = true }
+jni = { version = "0.21", optional = true }
 
 [features]
 default = []
