@@ -27,7 +27,7 @@ jobs:
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-darwin,aarch64-apple-darwin
 
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
@@ -38,6 +38,7 @@ jobs:
         run: |
           NDK_VERSION=$(sdkmanager --list 2>/dev/null | grep -oP 'ndk;\K[0-9.]+' | head -1)
           sdkmanager "ndk;$NDK_VERSION"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> $GITHUB_ENV
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties

@@ -37,10 +37,11 @@ crypto 是一个 Android 原生密码学库，对外提供 Kotlin API，内部�
 
 ### 环境要求
 
-- Go 1.26 或更高版本
-- Android SDK (API 33+)
-- Android NDK
+- Rust 工具链 1.75+（`rustup`）
+- `cargo-ndk`：`cargo install cargo-ndk`
+- Android SDK (API 33+) + Android NDK
 - JDK 17
+- Apple Xcode（仅 Apple 平台构建需要，macOS）
 
 ### 环境配置
 
@@ -253,33 +254,54 @@ object Hash {
 
 ---
 
-## 三层架构
+## 架构
 
-本库采用三层架构：**Kotlin → JNI (C) → Go**。
+本库采用：**Kotlin (KMP) → Rust** —— Android 走 JNI，Apple 平台走 cinterop。
 
-修改密码学函数时，必须同步更新全部三层：
+修改加密函数时需要更新的层：
 
-1. **Kotlin API** - `crypto/src/main/java/mobi/timon/crypto/*.kt`
-   - `external fun` 声明
+1. **commonMain API** - `crypto/src/commonMain/kotlin/mobi/timon/crypto/*.kt`
+   - `expect object` + 函数声明
 
-2. **JNI 桥接层** - `crypto/src/main/cpp/enc_jni.c`
-   - `Java_mobi_timon_crypto_*` JNI 绑定
+2. **Rust 实现** - `rust/src/*.rs`
+   - `#[no_mangle] pub extern "C" fn` C ABI 导出（`alloc_copy`/`alloc_bool` 分配）
 
-3. **Go 实现** - `crypto/src/main/go/*.go`
-   - `//export` Go 函数
+3. **androidMain actual** - `crypto/src/androidMain/kotlin/mobi/timon/crypto/*.kt`
+   - `actual external fun`（JNI）
 
-**内存管理**：Go 通过 JNI 中的 `FreeBytes` 释放 C 分配的缓冲区。布尔验证函数使用 `verifyBoolResult`。
+4. **JNI 桥** - `rust/src/jni.rs`
+   - `Java_mobi_timon_crypto_<类>_<方法>` 包装（`jni_1`/`jni_2`/`jni_3v` 宏）
 
-**示例**：添加新的哈希函数 `blake2b256`：
-1. 在 `Hash.kt` 中添加 `external fun blake2b256(data: ByteArray): ByteArray`
-2. 在 `enc_jni.c` 中添加 `Java_mobi_timon_crypto_Hash_blake2b256`
-3. 在 `hash.go` 中添加 `//export blake2b256` 函数
+5. **appleMain actual** - `crypto/src/appleMain/kotlin/mobi/timon/crypto/*.kt`
+   - `NativeBridge.call0/call1/call2/call2v/call3v` 辅助走 cinterop
+
+**重要**：改动 Rust FFI 接口后重新生成 C 头文件：
+```bash
+cd rust && cbindgen --config cbindgen.toml --crate crypto-native --output encrust.h
+cp encrust.h ../crypto/src/nativeInterop/cinterop/encrust.h
+```
+
+**内存管理**：Rust 返回 `libc::malloc` 缓冲区；Kotlin 桥拷贝后调 `enc_free` 释放。
+
+**示例**：新增哈希函数 `blake2b256`：
+1. commonMain `Hash.kt` 加 `expect` 声明
+2. `rust/src/hash.rs` 加 `#[no_mangle] pub extern "C" fn Blake2b256(...)`（附单测）
+3. androidMain `Hash.kt` 加 `actual external fun blake2b256(...)`
+4. `rust/src/jni.rs` 加 `jni_1!(Java_mobi_timon_crypto_Hash_blake2b256, h::Blake2b256);`
+5. appleMain `Hash.kt` 加 `actual fun blake2b256(data: ByteArray) = NativeBridge.call1(data) { ... }`
 
 ---
 
 ## 测试
 
-**单元测试**（app 模块）：
+**Rust 单元测试**（快速，无需设备——先跑这些）：
+```bash
+cd rust
+cargo test                  # 全部
+cargo test --test ffi_test  # C ABI 集成测试
+```
+
+**Kotlin 单元测试**（app 模块）：
 ```bash
 ./gradlew :app:testDebugUnitTest
 ./gradlew :app:test --tests "mobi.timon.android.ExampleUnitTest"
@@ -312,18 +334,27 @@ object Hash {
 ## 构建
 
 ```bash
-# 构建 crypto 模块（Debug）
+# 构建 crypto 模块（debug，自动调 cargo-ndk 编 4 个 ABI）
 ./gradlew :crypto:assembleDebug
 
-# 构建 crypto 模块（Release）
+# 构建 crypto 模块（release）
 ./gradlew :crypto:assembleRelease
 
-# 仅编译 Go（生成 libencgo.so）
-./gradlew :crypto:compileGoDebug
+# 仅 Rust（Android 4 ABI，含 JNI 桥）
+cd rust
+ANDROID_NDK_HOME=$HOME/Library/Android/sdk/ndk/<版本> \
+  cargo ndk -t arm64-v8a -P 33 build --release --features jni-bridge
 
-# 完全清空重新构建
+# 仅 Rust（Apple target）
+cd rust
+IPHONEOS_DEPLOYMENT_TARGET=13.0 cargo build --release --target aarch64-apple-ios
+
+# 完整 clean 构建
 ./gradlew clean assembleDebug
 ```
+
+Gradle 的 `buildRustAndroid`/`buildRustApple` 任务会自动调 cargo——
+除非在迭代 Rust 内部实现，一般无需手动跑 cargo。
 
 ---
 

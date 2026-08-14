@@ -37,10 +37,11 @@ All contributors are expected to follow our [Code of Conduct](#code-of-conduct).
 
 ### Prerequisites
 
-- Go 1.26 or later
-- Android SDK (API 33+)
-- Android NDK
+- Rust toolchain 1.75+ (`rustup`)
+- `cargo-ndk`: `cargo install cargo-ndk`
+- Android SDK (API 33+) + Android NDK
 - JDK 17
+- Apple Xcode (only for Apple-platform builds, macOS only)
 
 ### Setup
 
@@ -253,33 +254,54 @@ object Hash {
 
 ---
 
-## Three-Layer Architecture
+## Architecture
 
-This library uses a three-layer architecture: **Kotlin → JNI (C) → Go**.
+This library uses: **Kotlin (KMP) → Rust** — Android via JNI, Apple platforms via cinterop.
 
-When modifying cryptographic functions, you **must** update all three layers:
+When modifying cryptographic functions, update these layers:
 
-1. **Kotlin API** - `crypto/src/main/java/mobi/timon/crypto/*.kt`
-   - `external fun` declarations
+1. **commonMain API** - `crypto/src/commonMain/kotlin/mobi/timon/crypto/*.kt`
+   - `expect object` + function declarations
 
-2. **JNI Bridge** - `crypto/src/main/cpp/enc_jni.c`
-   - `Java_mobi_timon_crypto_*` JNI bindings
+2. **Rust Implementation** - `rust/src/*.rs`
+   - `#[no_mangle] pub extern "C" fn` C ABI export (alloc via `alloc_copy`/`alloc_bool`)
 
-3. **Go Implementation** - `crypto/src/main/go/*.go`
-   - `//export` Go functions
+3. **androidMain actual** - `crypto/src/androidMain/kotlin/mobi/timon/crypto/*.kt`
+   - `actual external fun` (JNI)
 
-**Memory management**: Go returns C-allocated buffers via `FreeBytes` in JNI. Boolean verify functions use `verifyBoolResult`.
+4. **JNI Bridge** - `rust/src/jni.rs`
+   - `Java_mobi_timon_crypto_<Class>_<method>` wrappers (`jni_1`/`jni_2`/`jni_3v` macros)
+
+5. **appleMain actual** - `crypto/src/appleMain/kotlin/mobi/timon/crypto/*.kt`
+   - `NativeBridge.call0/call1/call2/call2v/call3v` helpers over cinterop
+
+**Important**: after touching the Rust FFI surface, regenerate the C header:
+```bash
+cd rust && cbindgen --config cbindgen.toml --crate crypto-native --output encrust.h
+cp encrust.h ../crypto/src/nativeInterop/cinterop/encrust.h
+```
+
+**Memory management**: Rust returns `libc::malloc` buffers; Kotlin bridges copy + call `enc_free`.
 
 **Example**: To add a new hash function `blake2b256`:
-1. Add `external fun blake2b256(data: ByteArray): ByteArray` to `Hash.kt`
-2. Add `Java_mobi_timon_crypto_Hash_blake2b256` to `enc_jni.c`
-3. Add `//export blake2b256` function to `hash.go`
+1. Add `actual fun blake2b256(data: ByteArray): ByteArray` to commonMain `Hash.kt`
+2. Add `#[no_mangle] pub extern "C" fn Blake2b256(...)` to `rust/src/hash.rs` (+ unit test)
+3. Add `actual external fun blake2b256(...)` to androidMain `Hash.kt`
+4. Add `jni_1!(Java_mobi_timon_crypto_Hash_blake2b256, h::Blake2b256);` to `rust/src/jni.rs`
+5. Add `actual fun blake2b256(data: ByteArray) = NativeBridge.call1(data) { ... }` to appleMain `Hash.kt`
 
 ---
 
 ## Testing
 
-**Unit tests** (app module):
+**Rust unit tests** (fast, no device needed — run these first):
+```bash
+cd rust
+cargo test                  # all
+cargo test --test ffi_test  # C ABI integration tests
+```
+
+**Kotlin unit tests** (app module):
 ```bash
 ./gradlew :app:testDebugUnitTest
 ./gradlew :app:test --tests "mobi.timon.android.ExampleUnitTest"
@@ -312,18 +334,26 @@ Reports are generated at:
 ## Building
 
 ```bash
-# Build crypto module (debug)
+# Build crypto module (debug, auto-invokes cargo-ndk for 4 ABIs)
 ./gradlew :crypto:assembleDebug
 
 # Build crypto module (release)
 ./gradlew :crypto:assembleRelease
 
-# Compile Go only (generates libencgo.so)
-./gradlew :crypto:compileGoDebug
+# Rust only (Android 4 ABIs, with JNI bridge)
+cd rust
+ANDROID_NDK_HOME=$HOME/Library/Android/sdk/ndk/<ver>   cargo ndk -t arm64-v8a -P 33 build --release --features jni-bridge
+
+# Rust only (Apple targets)
+cd rust
+IPHONEOS_DEPLOYMENT_TARGET=13.0 cargo build --release --target aarch64-apple-ios
 
 # Full clean build
 ./gradlew clean assembleDebug
 ```
+
+The Gradle `buildRustAndroid`/`buildRustApple` tasks invoke cargo automatically —
+you normally don't need to run cargo by hand unless iterating on Rust internals.
 
 ---
 

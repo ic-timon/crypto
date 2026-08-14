@@ -89,7 +89,9 @@ fun runCargo(dir: File, ndkHome: String?, args: List<String>) {
 
 
 val rustDir = file("../rust")
-val ndkHome = System.getenv("ANDROID_NDK_HOME") ?: "${System.getProperty("user.home")}/Library/Android/sdk/ndk/27.0.12077973"
+val ndkHome = System.getenv("ANDROID_NDK_HOME")
+    ?: file("${System.getProperty("user.home")}/Library/Android/sdk/ndk").takeIf { it.exists() }
+        ?.listFiles()?.maxOrNull()?.toString()
 
 // Android: cargo-ndk build for 4 ABIs → libencrust.so
 val buildRustAndroid by tasks.registering {

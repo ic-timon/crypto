@@ -47,6 +47,7 @@ jobs:
         run: |
           NDK_VERSION=$(sdkmanager --list 2>/dev/null | grep -oP 'ndk;\K[0-9.]+' | head -1)
           sdkmanager "ndk;$NDK_VERSION"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> $GITHUB_ENV
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
