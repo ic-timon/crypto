@@ -51,15 +51,42 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release
-        run: ./gradlew :crypto:assembleRelease --no-daemon --stacktrace --info 2>&1 | tail -100
+      - name: Build Rust (Android ABIs)
+        # cargo-ndk 编 4 个 Android ABI 的 libencrust.so → src/androidMain/jniLibs/
+        # 绕开 Gradle 的 buildRustApple（macOS 上 cargo build --target aarch64-apple-ios 失败）
+        run: |
+          cd rust
+          export ANDROID_NDK_HOME=$ANDROID_NDK_HOME
+          for abi in arm64-v8a armeabi-v7a x86 x86_64; do
+            echo "=== cargo ndk $abi ==="
+            cargo ndk -t $abi -P 33 build --release --features jni-bridge 2>&1 | tail -20
+          done
+          # 复制 .so 到 jniLibs（buildRustAndroid Gradle task 会做，但绕开后要手动）
+          for abi in arm64-v8a armeabi-v7a x86 x86_64; do
+            target=$(case $abi in
+              arm64-v8a) echo aarch64-linux-android;;
+              armeabi-v7a) echo armv7-linux-androideabi;;
+              x86) echo i686-linux-android;;
+              x86_64) echo x86_64-linux-android;;
+            esac)
+            cp -f target/$target/release/libencrust.so ../crypto/src/androidMain/jniLibs/$abi/
+          done
         env:
           RUSTFLAGS: "-A warnings"
-          RUST_BACKTRACE: "1"
-
-      - name: Publish to GitHub Packages (full KMP — Android + Apple)
-        # 触发全部 8 个 KMP publications（Android AAR + 7 Apple targets 的 .klib）。
-        run: ./gradlew :crypto:publish --no-daemon --stacktrace 2>&1 | tail -150
+      - name: Build Rust (Apple targets)
+        run: |
+          cd rust
+          export IPHONEOS_DEPLOYMENT_TARGET=13.0
+          for target in aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin aarch64-apple-darwin; do
+            echo "=== cargo build $target ==="
+            cargo build --release --target $target 2>&1 | tail -15
+          done
+        env:
+          RUSTFLAGS: "-A warnings"
+      - name: Gradle Publish (full KMP — Android + Apple)
+        # 用预编的 .so/.a，让 Gradle 的 K/N compile + 8 publications 全部成功
+        # 跳过 :crypto:assembleRelease（K/N compile 会重新触发 cargo build，这里只走 publish）
+        run: ./gradlew :crypto:publish --no-daemon --stacktrace 2>&1 | tail -100
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
