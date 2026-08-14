@@ -81,16 +81,15 @@ jobs:
           done
         env:
           RUSTFLAGS: "-A warnings"
-      - name: Gradle Publish (Android AAR only)
-        # v2.1.0 发布 Android AAR 到 GitHub Packages。Apple K/N .klib MavenPublication
-        # 上传到 GitHub Packages 在 KMP + AGP 9 + macOS runner 上有路径问题（artifact 已生成但
-        # publication 注册的 from(components[]) 链路有 gradle 内部错位）。
-        # 本地 ./gradlew publishToMavenLocal 验证 8 个 publications 全部注册成功；
-        # 下游 release.yml 切换到 publishAllPublications 已在 v2.1.x patch 路线中。
-        run: ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test GitHub Packages Maven auth
+        # 先确认 GITHUB_TOKEN 能访问 GitHub Packages Maven（最常见问题：token 没 `packages: write` scope）
+        run: |
+          echo "actor=$GITHUB_ACTOR"
+          echo "token len=${#GITHUB_TOKEN}"
+          curl -s -o /dev/null -w "%{http_code}
+" \
+            -u "$GITHUB_ACTOR:$GITHUB_TOKEN" \
+            "https://maven.pkg.github.com/ic-timon/crypto/mobi/timon/crypto/crypto-android/maven-metadata.xml"
 
       - name: Get version from tag
         id: version
