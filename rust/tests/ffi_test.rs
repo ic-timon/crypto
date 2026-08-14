@@ -53,9 +53,7 @@ fn hkdf_works() {
     let ikm = [0x0bu8; 22];
     let salt = [0x0bu8; 13];
     let mut out_len: i32 = 0;
-    let r = unsafe {
-        encrust::kdf::Hkdf(ikm.as_ptr(), 22, salt.as_ptr(), 13, std::ptr::null(), 0, 42, &mut out_len)
-    };
+    let r = encrust::kdf::Hkdf(ikm.as_ptr(), 22, salt.as_ptr(), 13, std::ptr::null(), 0, 42, &mut out_len);
     assert!(!r.is_null(), "Hkdf null");
     encrust::utils::enc_free(r, out_len);
     assert_eq!(out_len, 42);
