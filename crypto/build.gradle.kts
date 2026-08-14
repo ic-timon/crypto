@@ -154,3 +154,10 @@ tasks.register("printSourceSets") {
         }
     }
 }
+
+dependencies {
+    "androidTestImplementation"(libs.junit)
+    "androidTestImplementation"(libs.androidx.junit)
+    "androidTestImplementation"(libs.androidx.runner.alias)
+    "androidTestImplementation"(libs.kotlin.testJunit)
+}

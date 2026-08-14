@@ -6,7 +6,7 @@ description = "Cross-platform cryptography library (Rust core for KMP)"
 
 [lib]
 name = "encrust"
-crate-type = ["cdylib", "staticlib"]
+crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
 sha1 = "0.10"

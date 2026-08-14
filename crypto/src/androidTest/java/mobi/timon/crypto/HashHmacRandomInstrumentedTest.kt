@@ -83,8 +83,8 @@ class HashHmacRandomInstrumentedTest {
     fun randomInt_samples_notAllIdentical() {
         val samples = List(16) { Random.int() }
         assertTrue(
-            samples.distinct().size >= 2,
             "CSPRNG samples should not all be identical",
+            samples.distinct().size >= 2,
         )
     }
 

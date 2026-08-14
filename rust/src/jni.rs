@@ -25,33 +25,37 @@ macro_rules! jni_fn {
 
 unsafe fn get_array_length(env: JNIEnv, arr: JByteArray) -> i32 {
     type Fn = extern "C" fn(JNIEnv, JByteArray) -> i32;
-    let f: Fn = std::mem::transmute(jni_fn!(env, 18));
+    let f: Fn = std::mem::transmute(jni_fn!(env, 171));
     f(env, arr)
 }
 
 unsafe fn get_byte_array_elements(env: JNIEnv, arr: JByteArray) -> (*mut u8, i32) {
-    type Fn = extern "C" fn(JNIEnv, JByteArray, *mut JBoolean) -> *mut i8;
-    let f: Fn = std::mem::transmute(jni_fn!(env, 184 / 8));
-    let elements = f(env, arr, std::ptr::null_mut());
     let len = get_array_length(env, arr);
+    type Fn = extern "C" fn(JNIEnv, JByteArray, *mut JBoolean) -> *mut i8;
+    let f: Fn = std::mem::transmute(jni_fn!(env, 184));
+    let elements = f(env, arr, std::ptr::null_mut());
+    if elements.is_null() {
+        // 获取失败（可能已有 pending exception）——不再触碰 JNI，由调用方统一 throw
+        return (std::ptr::null_mut(), 0);
+    }
     (elements as *mut u8, len)
 }
 
 unsafe fn release_byte_array_elements(env: JNIEnv, arr: JByteArray, ptr: *mut u8) {
     type Fn = extern "C" fn(JNIEnv, JByteArray, *mut i8, i32);
-    let f: Fn = std::mem::transmute(jni_fn!(env, 192 / 8));
+    let f: Fn = std::mem::transmute(jni_fn!(env, 192));
     f(env, arr, ptr as *mut i8, 0); // JNI_ABORT
 }
 
 unsafe fn new_byte_array(env: JNIEnv, len: i32) -> JByteArray {
     type Fn = extern "C" fn(JNIEnv, i32) -> JByteArray;
-    let f: Fn = std::mem::transmute(jni_fn!(env, 152 / 8));
+    let f: Fn = std::mem::transmute(jni_fn!(env, 176));
     f(env, len)
 }
 
 unsafe fn set_byte_array_region(env: JNIEnv, arr: JByteArray, start: i32, len: i32, buf: *const u8) {
     type Fn = extern "C" fn(JNIEnv, JByteArray, i32, i32, *const i8);
-    let f: Fn = std::mem::transmute(jni_fn!(env, 208 / 8));
+    let f: Fn = std::mem::transmute(jni_fn!(env, 208));
     f(env, arr, start, len, buf as *const i8);
 }
 
@@ -60,7 +64,7 @@ unsafe fn throw_enc_exception(env: JNIEnv, msg: &str) {
     let throw_new: extern "C" fn(JNIEnv, JClass, *const c_char) -> i32 = std::mem::transmute(jni_fn!(env, 14));
     let class_name = b"mobi/timon/crypto/EncException\0";
     let cls = find_class(env, class_name.as_ptr() as *const c_char);
-    if !cls.is_null() {
+    if !cls.is_null() {  // FindClass 失败时静默（可能已有 pending exception，不能再调 JNI）
         let mut buf = [0u8; 256];
         let copy_len = msg.len().min(254);
         buf[..copy_len].copy_from_slice(&msg.as_bytes()[..copy_len]);
@@ -77,9 +81,12 @@ unsafe fn result_to_jbytes(env: JNIEnv, result: *mut u8, out_len: c_int) -> JByt
         return std::ptr::null_mut();
     }
     let arr = new_byte_array(env, out_len);
-    if !arr.is_null() {
-        set_byte_array_region(env, arr, 0, out_len, result);
+    if arr.is_null() {
+        // NewByteArray 失败（OOM，pending exception 已设置）——只释放内存退出
+        crate::utils::enc_free(result, out_len);
+        return std::ptr::null_mut();
     }
+    set_byte_array_region(env, arr, 0, out_len, result);
     crate::utils::enc_free(result, out_len);
     arr
 }
@@ -200,7 +207,7 @@ jni_2!(Java_mobi_timon_crypto_Stream_chacha20Decrypt, st::ChaCha20Decrypt);
 
 // Random
 #[no_mangle]
-pub unsafe extern "system" fn Java_mobi_timon_crypto_Random_bytes(env: JNIEnv, _cls: JClass, length: JInt) -> JByteArray {
+pub unsafe extern "system" fn Java_mobi_timon_crypto_RandomJni_bytes(env: JNIEnv, _cls: JClass, length: JInt) -> JByteArray {
     let mut out: c_int = 0;
     result_to_jbytes(env, rd::RandomBytes(length, &mut out), out)
 }

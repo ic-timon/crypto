@@ -16,7 +16,7 @@ pub mod rsa;
 pub mod xts;
 pub mod ecdsa;
 pub mod bls;
-mod utils;
+pub mod utils;
 
 #[cfg(feature = "jni-bridge")]
 mod jni;

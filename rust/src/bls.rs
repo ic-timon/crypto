@@ -71,20 +71,46 @@ pub extern "C" fn BlsVerify(message: *const u8, message_len: c_int, signature: *
     unsafe { alloc_bool(valid, &mut *out_len) }
 }
 
-// TODO: BLS aggregate — blst crate 的 aggregate 返回 AggregateSignature/AggregatePublicKey 类型，
-// 序列化方式与普通 Signature/PublicKey 不同，需要额外的 to_bytes 转换。
-// 暂返回 null（不支持），后续完善。
-
 #[no_mangle]
 pub extern "C" fn BlsAggregateSignatures(signatures: *const u8, signatures_len: c_int, count: c_int, out_len: *mut c_int) -> *mut u8 {
-    let _ = (signatures, signatures_len, count);
-    unsafe { *out_len = 0 }
-    ERR_NULL
+    if signatures.is_null() || signatures_len <= 0 || count <= 0 || signatures_len != count * 96 {
+        unsafe { *out_len = 0 }; return ERR_NULL;
+    }
+    let data = unsafe { std::slice::from_raw_parts(signatures, signatures_len as usize) };
+    let mut sigs = Vec::with_capacity(count as usize);
+    for chunk in data.chunks(96) {
+        match Signature::from_bytes(chunk) {
+            Ok(s) => sigs.push(s),
+            Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+        }
+    }
+    let refs: Vec<&Signature> = sigs.iter().collect();
+    let agg = match blst::min_pk::AggregateSignature::aggregate(&refs, false) {
+        Ok(a) => a,
+        Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+    };
+    let bytes = agg.to_signature().to_bytes();
+    unsafe { alloc_copy(&bytes, &mut *out_len) }
 }
 
 #[no_mangle]
 pub extern "C" fn BlsAggregatePublicKeys(public_keys: *const u8, public_keys_len: c_int, count: c_int, out_len: *mut c_int) -> *mut u8 {
-    let _ = (public_keys, public_keys_len, count);
-    unsafe { *out_len = 0 }
-    ERR_NULL
+    if public_keys.is_null() || public_keys_len <= 0 || count <= 0 || public_keys_len != count * 48 {
+        unsafe { *out_len = 0 }; return ERR_NULL;
+    }
+    let data = unsafe { std::slice::from_raw_parts(public_keys, public_keys_len as usize) };
+    let mut pks = Vec::with_capacity(count as usize);
+    for chunk in data.chunks(48) {
+        match PublicKey::from_bytes(chunk) {
+            Ok(p) => pks.push(p),
+            Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+        }
+    }
+    let refs: Vec<&PublicKey> = pks.iter().collect();
+    let agg = match blst::min_pk::AggregatePublicKey::aggregate(&refs, false) {
+        Ok(a) => a,
+        Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+    };
+    let bytes = agg.to_public_key().to_bytes();
+    unsafe { alloc_copy(&bytes, &mut *out_len) }
 }
