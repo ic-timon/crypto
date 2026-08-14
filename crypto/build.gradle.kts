@@ -24,11 +24,8 @@ kotlin {
     // Apple targets
     iosArm64()
     iosSimulatorArm64()
-    iosX64()
     macosArm64()
     macosX64()
-    tvosArm64()
-    watchosArm64()
 
     // cinterop for each Apple target
     fun KotlinNativeTarget.cryptoCInterop() {
@@ -58,6 +55,7 @@ kotlin {
                 "ios_arm64" to "$rustRoot/target/aarch64-apple-ios/release",
                 "ios_simulator_arm64" to "$rustRoot/target/aarch64-apple-ios-sim/release",
                 "ios_x64" to "$rustRoot/target/x86_64-apple-ios/release",
+            "ios_macos_simulator_arm64" to "$rustRoot/target/aarch64-apple-ios-macabi/release",
                 "macos_arm64" to "$rustRoot/target/aarch64-apple-darwin/release",
                 "macos_x64" to "$rustRoot/target/x86_64-apple-darwin/release",
                 "tvos_arm64" to "$rustRoot/target/aarch64-apple-tvos/release",
@@ -81,18 +79,19 @@ kotlin {
         dependsOn("buildRustApple")
         mustRunAfter("buildRustApple")
     }
-    listOf("iosArm64", "iosSimulatorArm64", "iosX64", "macosArm64", "macosX64", "tvosArm64", "watchosArm64").forEach { t ->
+    listOf("iosArm64", "iosSimulatorArm64", "macosArm64", "macosX64").forEach { t ->
         tasks.matching { it.name == "cinteropCryptoNative${t.replaceFirstChar { it.uppercase() }}" }
             .configureEach { dependsOn("writeCryptoCInteropDef") }
     }
+    // 强制 metadata target 走 iosSimulatorArm64 的 cinterop（KMP 默认只挑一个 host target）
+    tasks.matching { it.name == "compileAppleMainKotlinMetadata" }.configureEach {
+        dependsOn("cinteropCryptoNativeIosSimulatorArm64")
+    }
     iosArm64 { cryptoCInterop() }
     iosSimulatorArm64 { cryptoCInterop() }
-    iosX64 { cryptoCInterop() }
     macosArm64 { cryptoCInterop() }
     macosX64 { cryptoCInterop() }
-    tvosX64 { cryptoCInterop() }
-    tvosArm64 { cryptoCInterop() }
-    watchosArm64 { cryptoCInterop() }
+    // tvOS/watchOS targets omitted — Rust stable doesn't support them
 
     sourceSets {
         commonMain.dependencies {
@@ -171,11 +170,10 @@ val buildRustApple by tasks.registering {
     val targets = listOf(
         "aarch64-apple-ios",
         "aarch64-apple-ios-sim",
-        "x86_64-apple-ios",        // iOS x86_64 simulator (Intel Mac)
         "aarch64-apple-darwin",
         "x86_64-apple-darwin",
-        "aarch64-apple-tvos",
-        "arm64_32-apple-watchos",
+        // tvos/watchOS omitted — Rust stable doesn't support them
+
     )
     doLast {
         targets.forEach { target ->
