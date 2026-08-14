@@ -139,6 +139,26 @@ tasks.named("preBuild") { dependsOn("buildRustAndroid") }
 
 // ── Maven publish ─────────────────────────────────────────────
 
+// 仅发布 Android AAR 到 GitHub Packages（KMP metadata/Apple targets 在 v2.0.0 暂不发布）。
+android {
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+}
+// AGP 默认发布 release variant 到 MavenPublication "release"。
+// artifacts id 默认由 android.namespace 派生（"mobi.timon.crypto:crypto-android"）。
+// 版本由项目 version 控制；这里显式给 Maven 坐标（KMP plugin 覆盖时不会自动生成 "release"）。
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "mobi.timon.crypto"
+            artifactId = "crypto-android"
+            version = "2.0.0"
+        }
+    }
+}
 publishing {
     repositories {
         maven {
