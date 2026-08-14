@@ -1,7 +1,7 @@
 //! Stream ciphers — AES-CTR（nonce(16)‖ct）+ ChaCha20（nonce(12)‖ct，无 MAC）。
 
 use crate::utils::{alloc_copy, ERR_NULL};
-use aes::cipher::{KeyInit, KeyIvInit, StreamCipher};
+use aes::cipher::{KeyIvInit, StreamCipher};
 use rand::RngCore;
 use std::os::raw::c_int;
 

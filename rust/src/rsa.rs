@@ -4,7 +4,7 @@
 use crate::utils::{alloc_bool, alloc_copy, ERR_NULL};
 use rand::rngs::OsRng;
 use rsa::{
-    Oaep, Pkcs1v15Sign, RsaPrivateKey, RsaPublicKey,
+    Oaep, RsaPrivateKey, RsaPublicKey,
     pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey},
 };
 use sha2::{Digest, Sha256};

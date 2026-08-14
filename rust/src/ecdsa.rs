@@ -5,7 +5,7 @@ use crate::utils::{alloc_bool, alloc_copy, ERR_NULL};
 use elliptic_curve::pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey};
 use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
-use signature::{SignatureEncoding, Signer, Verifier};
+use signature::{Signer, Verifier};
 use std::os::raw::c_int;
 
 fn strip_leading_zeros(bytes: &[u8]) -> &[u8] {
