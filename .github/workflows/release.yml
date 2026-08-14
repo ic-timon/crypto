@@ -52,7 +52,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Release
-        run: ./gradlew :crypto:assembleRelease --no-daemon
+        run: ./gradlew :crypto:assembleRelease --no-daemon --stacktrace --info 2>&1 | tail -200
 
       - name: Publish to GitHub Packages
         run: ./gradlew :crypto:publish --no-daemon
