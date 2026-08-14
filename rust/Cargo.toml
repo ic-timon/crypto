@@ -9,11 +9,38 @@ name = "encrust"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-sha2 = "0.10"
+sha1 = "0.10"
+sha2 = { version = "0.10", features = ["oid"] }
+sha3 = "0.10"
 hmac = "0.12"
+md-5 = "0.10"
+blake2 = "0.10"
+ripemd = "0.1"
+aes-gcm = "0.10"
+chacha20poly1305 = "0.10"
+chacha20 = "0.9"
+aes = "0.8"
+ctr = "0.9"
+cbc = { version = "0.1", features = ["alloc"] }
+des = "0.8"
+argon2 = "0.5"
+bcrypt = "0.15"
+pbkdf2 = { version = "0.12", features = ["simple"] }
+scrypt = "0.11"
+hkdf = "0.12"
+rsa = "0.9"
+signature = "2"
+p256 = { version = "0.13", features = ["ecdsa"] }
+p384 = { version = "0.13", features = ["ecdsa"] }
+p521 = { version = "0.13", features = ["ecdsa"] }
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 secp256k1 = { version = "0.29", features = ["global-context", "rand", "recovery"] }
 rand = "0.8"
+rand_core = "0.6"
+getrandom = "0.2"
 libc = "0.2"
+digest = "0.10"
+elliptic-curve = { version = "0.13", features = ["pkcs8"] }
 
 [profile.release]
 opt-level = "z"

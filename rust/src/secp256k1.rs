@@ -3,13 +3,11 @@
 //! 对齐 Go 版函数签名和 wire format，修掉 Go 版 sign/verify 格式不一致 bug：
 //! sign 出 65B compact（r‖s‖recoveryId），verify 也解析 compact（65B 或 64B），不再用 DER。
 
-use crate::utils::{alloc_bool, alloc_copy};
+use crate::utils::{alloc_bool, alloc_copy, ERR_NULL};
 use rand::rngs::OsRng;
 use secp256k1::{ecdsa, schnorr, Keypair, Message, PublicKey, Secp256k1, SecretKey};
 use sha2::{Digest, Sha256};
 use std::os::raw::c_int;
-
-const ERR_NULL: *mut u8 = std::ptr::null_mut();
 
 fn schnorr_message_hash(message: &[u8]) -> [u8; 32] {
     Sha256::digest(message).into()

@@ -2,6 +2,9 @@
 
 use std::os::raw::c_int;
 
+/// FFI null 返回值（错误信号）。
+pub const ERR_NULL: *mut u8 = std::ptr::null_mut();
+
 /// 分配 len 字节，拷贝 data 进去，设置 *out_len，返回指针。
 /// 调用方（JNI / cinterop）用 [`enc_free`] 释放。
 pub(crate) fn alloc_copy(data: &[u8], out_len: &mut c_int) -> *mut u8 {
