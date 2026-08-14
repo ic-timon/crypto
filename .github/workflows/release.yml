@@ -100,7 +100,7 @@ jobs:
       - name: Gradle Publish (full KMP — Android + Apple)
         # 用预编的 .so/.a，让 Gradle 的 K/N compile + 8 publications 全部成功
         # 跳过 :crypto:assembleRelease（K/N compile 会重新触发 cargo build，这里只走 publish）
-        run: ./gradlew :crypto:publish --no-daemon --stacktrace 2>&1 | tail -100
+        run: ./gradlew :crypto:publish --no-daemon
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
