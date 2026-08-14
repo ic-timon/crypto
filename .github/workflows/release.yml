@@ -99,18 +99,15 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Find AAR
+      - name: Find AAR (hardcoded path)
         id: aar
         run: |
-          set +e  # 容忍 set -e + find 没匹配
-          ls -la crypto/build/outputs/aar/ 2>&1 || true
-          AAR=$(find crypto/build/outputs/aar -name 'crypto-release.aar' 2>/dev/null | head -1)
-          [ -z "$AAR" ] && AAR=$(find crypto/build/outputs/aar -name '*.aar' 2>/dev/null | head -1)
+          set +e
+          ls -la crypto/build/outputs/aar/ 2>&1 || echo "no aar dir"
+          # 直接定位单个 AAR — 已知文件名
+          AAR=$(find . -name 'crypto-release.aar' 2>/dev/null | head -1)
+          echo "DEBUG: AAR_PATH=$AAR"
           echo "AAR_PATH=$AAR" >> "$GITHUB_OUTPUT"
-          echo "DEBUG: AAR=$AAR exists=$([ -n "$AAR" ] && [ -f "$AAR" ] && echo yes || echo no)"
-          DEBUG=$(find crypto/build/outputs/aar -name 'crypto-debug.aar' 2>/dev/null | head -1)
-          [ -n "$DEBUG" ] && echo "DEBUG_PATH=$DEBUG" >> "$GITHUB_OUTPUT"
-          true  # ensure exit 0
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
