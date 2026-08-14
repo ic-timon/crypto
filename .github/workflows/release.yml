@@ -98,10 +98,30 @@ jobs:
         env:
           RUSTFLAGS: "-A warnings"
       - name: Gradle Publish (full KMP — Android + Apple)
-        run: ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 || (echo "publish failed, retrying with single Android pub:" && ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 || true)
+        # 写完整日志到 artifact，便于本地调试（artifact 30 天过期）
+        run: |
+          set +e
+          ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace --info 2>&1 | tee /tmp/publish.log
+          STATUS=$?
+          echo "publishAll exit=$STATUS"
+          if [ $STATUS -ne 0 ]; then
+            echo "--- retry single Android ---"
+            ./gradlew :crypto:publishReleasePublicationToGitHubPackagesRepository --no-daemon --stacktrace --info 2>&1 | tee -a /tmp/publish.log
+            echo "publishRelease exit=$?"
+          fi
+          # 总是继续（让 Find AAR + Create Release 还能跑）
+          cp /tmp/publish.log /tmp/gradle-publish.log
+          true
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload publish log (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-publish-log
+          path: /tmp/gradle-publish.log
 
       - name: Get version from tag
         id: version
