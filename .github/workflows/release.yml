@@ -54,8 +54,8 @@ jobs:
       - name: Build Release
         run: ./gradlew :crypto:assembleRelease --no-daemon --stacktrace
 
-      - name: Publish to GitHub Packages
-        run: ./gradlew :crypto:publish --no-daemon
+      - name: Publish to GitHub Packages (Android AAR only)
+        run: ./gradlew :crypto:publishMavenPublicationToGitHubPackagesRepository --no-daemon
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
