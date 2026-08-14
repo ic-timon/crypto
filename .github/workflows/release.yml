@@ -103,13 +103,14 @@ jobs:
         # -x lint 跳过 lint check（lint target 在 cross-compile 时常超时）。
         # buildAppleMainKotlinMetadata 是所有 Apple target 的元数据公共编译步骤。
         run: |
-          ./gradlew :crypto:linkIosArm64ReleaseExecutable --no-daemon || echo "linkIosArm64 skipped" || true
-          ./gradlew :crypto:linkIosSimulatorArm64ReleaseExecutable --no-daemon || true
-          ./gradlew :crypto:linkIosX64ReleaseExecutable --no-daemon || true
-          ./gradlew :crypto:linkMacosArm64ReleaseExecutable --no-daemon || true
-          ./gradlew :crypto:linkMacosX64ReleaseExecutable --no-daemon || true
-          ./gradlew :crypto:linkTvosArm64ReleaseExecutable --no-daemon || true
-          ./gradlew :crypto:linkWatchosArm64ReleaseExecutable --no-daemon || true
+          # compileKotlin<target> 生成 .klib 并触发 MavenPublication 注册
+          ./gradlew :crypto:compileKotlinIosArm64 --no-daemon || true
+          ./gradlew :crypto:compileKotlinIosSimulatorArm64 --no-daemon || true
+          ./gradlew :crypto:compileKotlinIosX64 --no-daemon || true
+          ./gradlew :crypto:compileKotlinMacosArm64 --no-daemon || true
+          ./gradlew :crypto:compileKotlinMacosX64 --no-daemon || true
+          ./gradlew :crypto:compileKotlinTvosArm64 --no-daemon || true
+          ./gradlew :crypto:compileKotlinWatchosArm64 --no-daemon || true
           # 现在 publish 会找到所有 publications
           ./gradlew :crypto:publishAllPublicationsToGitHubPackagesRepository --no-daemon --stacktrace 2>&1 | tail -100
         env:
