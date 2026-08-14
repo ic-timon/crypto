@@ -42,9 +42,8 @@ jobs:
           [ -z "$NDK_VERSION" ] && NDK_VERSION=$(sdkmanager --list 2>/dev/null | awk '/^[[:space:]]+ndk;/ {sub(/^[[:space:]]+ndk;/,""); print; exit}')
           [ -z "$NDK_VERSION" ] && { echo "::error::No NDK version found via sdkmanager"; exit 1; }
           sdkmanager "ndk;$NDK_VERSION"
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
-          echo "NDK_HOME_FROM_ENV=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
-          ls "$ANDROID_HOME/ndk/$NDK_VERSION" || { echo "::error::NDK dir not present"; exit 1; }
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" | tee -a "$GITHUB_ENV"
+          ls "$ANDROID_HOME/ndk/$NDK_VERSION" || { echo "::error::NDK dir not present at $ANDROID_HOME/ndk/$NDK_VERSION"; exit 1; }
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
