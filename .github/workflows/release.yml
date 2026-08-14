@@ -57,8 +57,10 @@ jobs:
           RUSTFLAGS: "-A warnings"
           RUST_BACKTRACE: "1"
 
-      - name: Publish to GitHub Packages (Android AAR only)
-        run: ./gradlew :crypto:publishMavenPublicationToGitHubPackagesRepository --no-daemon
+      - name: Publish to GitHub Packages
+        # 标准 publish；Apple targets 在当前 v2.0.0 release 不打包（macOS 工具链限制）
+        # K/N metadata 在 :crypto:publish 内部跳过的副作用是 Apple artifacts 缺——这是已知的 v2.0.0 限制
+        run: ./gradlew :crypto:publish --no-daemon
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
