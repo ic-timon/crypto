@@ -165,7 +165,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "mobi.timon.crypto"
             artifactId = "crypto-android"
-            version = "2.0.0"
+            version = "2.2.0"
         }
     }
 }
