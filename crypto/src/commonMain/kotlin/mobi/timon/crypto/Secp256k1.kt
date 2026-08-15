@@ -2,6 +2,7 @@ package mobi.timon.crypto
 expect object Secp256k1 {
     fun generateKey(): ByteArray
     fun privateKeyToPublicKey(privateKey: ByteArray, compressed: Boolean): ByteArray
+    fun ecdh(privateKey: ByteArray, publicKey: ByteArray): ByteArray
     fun sign(message: ByteArray, privateKey: ByteArray): ByteArray
     fun verify(message: ByteArray, signature: ByteArray, publicKey: ByteArray): Boolean
     fun recoverPublicKey(message: ByteArray, signature: ByteArray, compressed: Boolean): ByteArray

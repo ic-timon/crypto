@@ -13,6 +13,7 @@ actual object Secp256k1 {
         }
         NativeBridge.unwrap(result, outLen.value)
     }
+    actual fun ecdh(privateKey: ByteArray, publicKey: ByteArray) = NativeBridge.call2(privateKey, publicKey) { k, kl, p, pl, o -> Secp256k1Ecdh(k, kl, p, pl, o) }
     actual fun sign(message: ByteArray, privateKey: ByteArray) = NativeBridge.call2(message, privateKey) { m, ml, k, kl, o -> Secp256k1Sign(m, ml, k, kl, o) }
     actual fun verify(message: ByteArray, signature: ByteArray, publicKey: ByteArray) = NativeBridge.call3v(message, signature, publicKey) { m, ml, s, sl, p, pl, o -> Secp256k1Verify(m, ml, s, sl, p, pl, o) }
     actual fun recoverPublicKey(message: ByteArray, signature: ByteArray, compressed: Boolean): ByteArray = memScoped {

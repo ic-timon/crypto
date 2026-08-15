@@ -5,7 +5,7 @@
 
 use crate::utils::{alloc_bool, alloc_copy, ERR_NULL};
 use rand::rngs::OsRng;
-use secp256k1::{ecdsa, schnorr, Keypair, Message, PublicKey, Secp256k1, SecretKey};
+use secp256k1::{ecdsa, schnorr, Keypair, Message, PublicKey, Scalar, Secp256k1, SecretKey, XOnlyPublicKey};
 use sha2::{Digest, Sha256};
 use std::os::raw::c_int;
 
@@ -53,6 +53,43 @@ pub extern "C" fn Secp256k1PrivateKeyToPublicKey(
     let pk = PublicKey::from_secret_key(&secp, &sk);
     let serialized = if compressed == 1 { pk.serialize().to_vec() } else { pk.serialize_uncompressed().to_vec() };
     unsafe { alloc_copy(&serialized, &mut *out_len) }
+}
+
+/// ECDH 共享密钥。privateKey 32B，publicKey 33B compressed 或 32B x-only。返回 x 坐标 32B。
+#[no_mangle]
+pub extern "C" fn Secp256k1Ecdh(
+    private_key: *const u8, private_key_len: c_int,
+    public_key: *const u8, public_key_len: c_int,
+    out_len: *mut c_int,
+) -> *mut u8 {
+    if private_key.is_null() || private_key_len != 32 || public_key.is_null() || (public_key_len != 32 && public_key_len != 33) {
+        unsafe { *out_len = 0 };
+        return ERR_NULL;
+    }
+    let sk_bytes = unsafe { std::slice::from_raw_parts(private_key, 32) };
+    let pk_bytes = unsafe { std::slice::from_raw_parts(public_key, public_key_len as usize) };
+    let sk = match SecretKey::from_slice(sk_bytes) {
+        Ok(k) => k,
+        Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+    };
+    let pk = if public_key_len == 33 {
+        match PublicKey::from_slice(pk_bytes) {
+            Ok(p) => p,
+            Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+        }
+    } else {
+        // 32B x-only → PublicKey
+        let x_only = match XOnlyPublicKey::from_slice(pk_bytes) {
+            Ok(x) => x,
+            Err(_) => unsafe { *out_len = 0; return ERR_NULL; },
+        };
+        PublicKey::from_x_only_public_key(x_only, secp256k1::Parity::Even)
+    };
+    // priv × pub → shared point → serialize compressed → 取 x 坐标（前 32 字节）
+    let shared = pk.mul_tweak(&Secp256k1::new(), &Scalar::from(sk)).unwrap();
+    let compressed = shared.serialize();
+    let x_coord: [u8; 32] = compressed[1..33].try_into().unwrap();
+    unsafe { alloc_copy(&x_coord, &mut *out_len) }
 }
 
 /// ECDSA 签名。出 65B compact（r‖s‖recoveryId）。

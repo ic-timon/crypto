@@ -20,6 +20,11 @@
  uint8_t *Secp256k1PrivateKeyToPublicKey(const uint8_t *private_key, int private_key_len, int compressed, int *out_len) ;
 
 /**
+ * ECDH shared secret. privateKey 32B, publicKey 33B compressed or 32B x-only. Returns x-coordinate 32B.
+ */
+ uint8_t *Secp256k1Ecdh(const uint8_t *private_key, int private_key_len, const uint8_t *public_key, int public_key_len, int *out_len) ;
+
+/**
  * ECDSA 签名。出 65B compact（r‖s‖recoveryId）。
  */
  uint8_t *Secp256k1Sign(const uint8_t *message, int message_len, const uint8_t *private_key, int private_key_len, int *out_len) ;

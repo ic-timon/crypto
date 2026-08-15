@@ -240,6 +240,7 @@ pub unsafe extern "system" fn Java_mobi_timon_crypto_Secp256k1_privateKeyToPubli
 
 jni_2!(Java_mobi_timon_crypto_Secp256k1_sign, sk::Secp256k1Sign);
 jni_3v!(Java_mobi_timon_crypto_Secp256k1_verify, sk::Secp256k1Verify);
+jni_2!(Java_mobi_timon_crypto_Secp256k1_ecdh, sk::Secp256k1Ecdh);
 
 #[no_mangle]
 pub unsafe extern "system" fn Java_mobi_timon_crypto_Secp256k1_recoverPublicKey(env: JNIEnv, _cls: JClass, msg: JByteArray, sig: JByteArray, compressed: JInt) -> JByteArray {
