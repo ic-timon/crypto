@@ -41,7 +41,11 @@ jobs:
       - name: Add Android Rust targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
+      # 默认 packages 是已下架的 `tools`，sdkmanager 会 Failed to find package 'tools'。
+      # cmdline-tools 由 action 自带；NDK 在下一步单独安装。
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Accept SDK licenses
         run: yes | sdkmanager --licenses > /dev/null
