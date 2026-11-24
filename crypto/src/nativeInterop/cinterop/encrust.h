@@ -8,6 +8,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Prehashed SHA-256/384/512, matching MGF1. Status: 1 valid, 0 mismatch, -1 invalid, -5 modulus size. */
+int32_t encrust_rsa_pss_verify_v1(const uint8_t *n, int32_t n_len, const uint8_t *e, int32_t e_len,
+    const uint8_t *digest, int32_t digest_len, const uint8_t *sig, int32_t sig_len, int32_t salt_len);
+
 /* All buffers are 32 bytes; status 0 succeeds, -1 rejects null,
  * -2 rejects a low-order peer and clears the output. */
 int32_t encrust_x25519_public_v1(const uint8_t *secret, uint8_t *out);

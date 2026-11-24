@@ -21,3 +21,4 @@ pub mod utils;
 
 #[cfg(feature = "jni-bridge")]
 mod jni;
+pub mod rsa_pss;

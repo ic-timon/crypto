@@ -5,5 +5,7 @@ expect object Rsa {
     fun decrypt(ciphertext: ByteArray, privateKey: ByteArray): ByteArray
     fun sign(message: ByteArray, privateKey: ByteArray): ByteArray
     fun verify(message: ByteArray, signature: ByteArray, publicKey: ByteArray): Boolean
+    /** Verify a prehashed SHA-256/384/512 digest with matching MGF1 and exact salt length. */
+    fun verifyPss(modulus: ByteArray, exponent: ByteArray, digest: ByteArray, signature: ByteArray, saltLength: Int): Boolean
     fun privateKeyToPublicKey(privateKey: ByteArray): ByteArray
 }
