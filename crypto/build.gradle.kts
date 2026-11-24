@@ -27,6 +27,22 @@ kotlin {
     macosArm64()
     macosX64()
 
+    val linuxArchive = rootProject.file("rust/target/x86_64-unknown-linux-gnu/release/libencrust.a")
+    val buildRustLinuxX64 = tasks.register<Exec>("buildRustLinuxX64") {
+        workingDir(rootProject.file("rust"))
+        commandLine("cargo", "build", "--locked", "--release", "--target", "x86_64-unknown-linux-gnu")
+        inputs.files(rootProject.fileTree("rust/src"), rootProject.file("rust/Cargo.toml"), rootProject.file("rust/Cargo.lock"))
+        outputs.file(linuxArchive)
+    }
+    linuxX64 {
+        compilations["main"].cinterops.create("cryptoNative") {
+            definitionFile.set(project.file("src/nativeInterop/cinterop/linuxX64.def"))
+            includeDirs(project.file("src/nativeInterop/cinterop"))
+            extraOpts("-libraryPath", linuxArchive.parent)
+            tasks.named(interopProcessingTaskName) { dependsOn(buildRustLinuxX64) }
+        }
+    }
+
     // cinterop for each Apple target
     fun KotlinNativeTarget.cryptoCInterop() {
         compilations["main"].cinterops {
@@ -94,6 +110,8 @@ kotlin {
     // tvOS/watchOS targets omitted — Rust stable doesn't support them
 
     sourceSets {
+        linuxX64Main { kotlin.srcDir("src/appleMain/kotlin") }
+        linuxX64Test.dependencies { implementation(kotlin("test")) }
         commonMain.dependencies {
             implementation(kotlin("stdlib"))
         }

@@ -7,6 +7,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+/* All buffers are 32 bytes; status 0 succeeds, -1 rejects null,
+ * -2 rejects a low-order peer and clears the output. */
+int32_t encrust_x25519_public_v1(const uint8_t *secret, uint8_t *out);
+int32_t encrust_x25519_shared_v1(const uint8_t *secret, const uint8_t *peer, uint8_t *out);
 #include <stdlib.h>
 
 /**

@@ -1,0 +1,5 @@
+package = mobi.timon.crypto.native
+headers = encrust.h
+headerFilter = encrust.h
+staticLibraries = libencrust.a
+linkerOpts = -ldl -lpthread -lm

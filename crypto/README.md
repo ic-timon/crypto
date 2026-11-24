@@ -1,6 +1,8 @@
 # Enc — 跨平台密码学库（`mobi.timon.crypto`）
 
-基于 **Kotlin Multiplatform + Rust**：Kotlin API（commonMain expect）→ Android JNI / Apple cinterop → Rust 加密核心（`rust/` crate，RustCrypto 生态）。
+基于 **Kotlin Multiplatform + Rust**：Kotlin API（commonMain expect）→ Android JNI / Apple、Linux x64 cinterop → Rust 加密核心（`rust/` crate，RustCrypto 生态）。
+
+Linux x64 可在安装 Rust 和 x86_64-unknown-linux-gnu 目标的 Linux 主机运行 `./gradlew :crypto:linuxX64Test`。Kotlin/Native SDK 静态链接 encrust，独立 C ABI 消费方也可加载同次 Cargo Release 构建生成的 libencrust.so。X25519 的 publicKey 和 sharedSecret 均接受 32 字节原始密钥，sharedSecret 拒绝低阶对端公钥。
 
 ## 架构
 
